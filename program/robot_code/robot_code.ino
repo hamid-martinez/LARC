@@ -1,0 +1,287 @@
+#include <util/atomic.h>
+volatile int posi[] = {0, 0, 0, 0}; // add more for more motors
+
+#define motor_number 4
+
+// Motor driver and encoder pin definitions as an array
+// To add more motors keep adding to the array
+// my_array[] = {value_M1, value_M2, value_M3, .....};
+// Try changing the encoder pins, in the arduino nano pin11 for enb did not work
+const int ENABLE[] = {13, 44, 7, 45};
+const int IN1[] = {12, 48, 6, 47};
+const int IN2[] = {11, 46, 5, 49};
+const int ENCA[] = {2, 3, 18, 19}; // Pins for interrupt signal
+const int ENCB[] = {53, 52, 51, 50};
+
+const int pwm_resolution = 255; // The max duty cycle value for the pwm signal
+
+// PID values for each motor as an array
+// control_array[] = {kp_m1, kp_m2, kp_m3...};
+// start values: 3.5, 0.02, 0.25
+// safe values: 1, 0, 0
+const int KP[] = {1, 1, 1, 1}; // decreases rise time
+const int KI[] = {0, 0, 0, 0}; // eliminates steady-state error
+const int KD[] = {0, 0, 0, 0}; // decreases overshoot
+
+// PID variables used in function
+long prevT = 0;
+float eprev = 0;
+float eintegral = 0;
+int errors[] = {0, 0};
+
+// User input and communication variables
+String readString;
+int user_input, user_input2;
+bool k = true;
+
+int counts = 0;
+String split_1;
+String split_2;
+int comma_index;
+
+void setup() 
+{
+  Serial.begin(9600);
+
+  for(int i = 0; i < motor_number; i++)
+  {
+    pinMode(ENCA[i],INPUT);
+    pinMode(ENCB[i],INPUT);
+
+    pinMode(ENABLE[i],OUTPUT);
+    pinMode(IN1[i],OUTPUT);
+    pinMode(IN2[i],OUTPUT);
+  }
+  
+  // Set the interruption pins for the encoders
+  attachInterrupt(digitalPinToInterrupt(ENCA[0]), readEncoder<0>, RISING);
+  attachInterrupt(digitalPinToInterrupt(ENCA[1]), readEncoder<1>, RISING);
+  attachInterrupt(digitalPinToInterrupt(ENCA[2]), readEncoder<2>, RISING);
+  attachInterrupt(digitalPinToInterrupt(ENCA[3]), readEncoder<3>, RISING);
+  
+}
+
+void loop() 
+{
+  while(Serial.available())
+  {
+    delay(50);
+    char c = Serial.read();
+    readString += c;
+  }
+
+  // Create a bigger input string to take commands for all motors: M190,M2180,M375,M4130
+  // Separte the string to create the different targets of each motor
+  comma_index = readString.indexOf(",");
+  split_1 = readString.substring(0, comma_index); // "F"
+  split_2 = readString.substring(comma_index + 1);  // "360"
+
+
+  if(split_1 == "F")
+  {
+    user_input = split_2.toInt();
+    k = true;
+    counts = 0; 
+   
+    while (k==true)
+    {
+      for ( int i = 0; i < motor_number; i++)
+      {
+        PID_control(user_input, KP[i], KD[i], KI[i], ENABLE[i], IN1[i], IN2[i], i);
+      }
+    }
+  }
+  else if (split_1 == "B")
+  {
+    user_input = split_2.toInt() * -1;
+    k = true;
+    counts = 0; 
+   
+    while ( k==true)
+    {
+      for ( int i = 0; i < motor_number; i++)
+      {
+        PID_control(user_input, KP[i], KD[i], KI[i], ENABLE[i], IN1[i], IN2[i], i);
+      }
+    }
+  }
+    else if (split_1 == "R")
+  {
+    user_input = split_2.toInt();
+    user_input2 = split_2.toInt() * -1;
+    k = true;
+    counts = 0; 
+   
+    while ( k==true)
+    {
+      PID_control(user_input, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
+      PID_control(user_input, KP[i], KD[i], KI[i], ENABLE[i], IN1[i], IN2[i], i);
+      PID_control(user_input, KP[i], KD[i], KI[i], ENABLE[i], IN1[i], IN2[i], i);
+      PID_control(user_input, KP[i], KD[i], KI[i], ENABLE[i], IN1[i], IN2[i], i);
+    }
+  }
+      else if (split_1 == "M4")
+  {
+    user_input = split_2.toInt();
+    k = true;
+    counts = 0; 
+   
+    while ( k==true)
+    {
+      //PID_control(user_input, Kp_M1, Kd_M1, Ki_M1, ENA_M1, IN1_M1, IN2_M1);
+    }
+  }
+  
+}
+
+void PID_control(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int in1_in, int in2_in, int motor)
+{
+  int target = map(user_input, 0, 360, 0, 495);
+
+  float kp = kp_in; // decreases rise time
+  float ki = ki_in; // eliminates steady-state error
+  float kd = kd_in; // decreases overshoot
+
+  long currT = micros();
+  float deltaT = ((float) (currT - prevT))/( 1.0e6 );
+  prevT = currT;
+
+  int pos = 0;
+
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) 
+  {
+    pos = posi[motor];
+  }
+
+  // error
+  int e = pos - target;
+
+  // derivative
+  float dedt = (e-eprev)/(deltaT);
+
+  // integral
+  eintegral = eintegral + e*deltaT;
+
+  // control signal
+  float u = kp*e + kd*dedt + ki*eintegral;
+
+  // motor power
+  float pwr = fabs(u);
+
+  if ( pwr > pwm_resolution )
+  {
+    pwr = pwm_resolution;
+  }
+
+  // motor direction
+  int dir = 1;
+
+  if ( u < 0 )
+  {
+    dir = -1;
+  }
+
+  setMotor(dir, pwr, enable_in, in1_in, in2_in);
+
+  // store previous error
+  eprev = e;
+
+  // "Motor: x , Target: x , Pos: x "
+  Serial.println(" ");
+  Serial.print("Motor: ");
+  Serial.print(motor);
+  Serial.print(" , ");
+  Serial.print("Target: ");
+  Serial.print(target);
+  Serial.print(" , ");
+  Serial.print("Pos: ");
+  Serial.print(pos);
+  Serial.print(" , ");
+  Serial.print("Dir: ");
+  Serial.print(dir);
+  Serial.print(" , ");
+  Serial.print("Counts: ");
+  Serial.print(counts);
+  Serial.print(" , ");
+  Serial.print("Prev_Error: ");
+  Serial.print(eprev);
+  Serial.print(" , ");
+  Serial.print("Error: ");
+  Serial.print(e);
+  Serial.println(" ");
+
+  counts = counts + 1;
+
+  if (counts > 100 )
+  {
+    for (int i = 0; i < motor_number; i++)
+    {
+      analogWrite(ENABLE[i], 0);
+      posi[i] = 0;
+    }
+    split_1 = "";
+    split_2 = "";
+    readString = "";
+    k = false;
+  }
+
+}
+
+void setMotor(int dir, int pwmVal, int ena, int in1, int in2)
+{
+
+  analogWrite(ena, pwmVal); // equivalent for esp32 ledcWrite(ena, pwmVal)
+
+  if(dir == 1)
+  {
+    digitalWrite(in1,HIGH);
+    digitalWrite(in2,LOW);
+  }
+
+  else if(dir == -1)
+  {
+    digitalWrite(in1,LOW);
+    digitalWrite(in2,HIGH);
+  }
+
+  else
+  {
+    digitalWrite(in1,LOW);
+    digitalWrite(in2,LOW);
+  }
+}
+
+// Creating a template generates a different version of the function
+// depending on the index that is called.
+template <int j>
+void readEncoder()
+{
+  int b = digitalRead(ENCB[j]);
+
+  if(j == 1 || j == 2)
+  {
+    if(b > 0)
+    {
+      posi[j]--;
+    }
+
+    else
+    {
+      posi[j]++;
+    }
+  }
+
+  else
+  {
+    if(b > 0)
+    {
+      posi[j]++;
+    }
+
+    else
+    {
+      posi[j]--;
+    }
+  }
+
+}
