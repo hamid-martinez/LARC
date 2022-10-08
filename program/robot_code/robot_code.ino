@@ -40,6 +40,10 @@ String split_1;
 String split_2;
 int comma_index;
 
+// Set up for stepper motor and limit switch
+const int stepper_step = 2;
+const int stepper_dir = 1;
+
 void setup() 
 {
   Serial.begin(9600);
@@ -92,6 +96,7 @@ void loop()
       }
     }
   }
+
   else if (split_1 == "B")
   {
     user_input = split_2.toInt() * -1;
@@ -106,7 +111,8 @@ void loop()
       }
     }
   }
-    else if (split_1 == "R")
+  
+  else if (split_1 == "R")
   {
     user_input = split_2.toInt();
     user_input2 = split_2.toInt() * -1;
@@ -116,21 +122,63 @@ void loop()
     while ( k==true)
     {
       PID_control(user_input, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
-      PID_control(user_input, KP[i], KD[i], KI[i], ENABLE[i], IN1[i], IN2[i], i);
-      PID_control(user_input, KP[i], KD[i], KI[i], ENABLE[i], IN1[i], IN2[i], i);
-      PID_control(user_input, KP[i], KD[i], KI[i], ENABLE[i], IN1[i], IN2[i], i);
+      PID_control(user_input2, KP[1], KD[1], KI[1], ENABLE[1], IN1[1], IN2[1], 1);
+      PID_control(user_input, KP[2], KD[2], KI[2], ENABLE[2], IN1[2], IN2[2], 2);
+      PID_control(user_input2, KP[3], KD[3], KI[3], ENABLE[3], IN1[3], IN2[3], 3);
     }
   }
-      else if (split_1 == "M4")
+  
+  else if (split_1 == "L")
   {
     user_input = split_2.toInt();
+    user_input2 = split_2.toInt() * -1;
     k = true;
     counts = 0; 
    
     while ( k==true)
     {
-      //PID_control(user_input, Kp_M1, Kd_M1, Ki_M1, ENA_M1, IN1_M1, IN2_M1);
+      PID_control(user_input2, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
+      PID_control(user_input, KP[1], KD[1], KI[1], ENABLE[1], IN1[1], IN2[1], 1);
+      PID_control(user_input2, KP[2], KD[2], KI[2], ENABLE[2], IN1[2], IN2[2], 2);
+      PID_control(user_input, KP[3], KD[3], KI[3], ENABLE[3], IN1[3], IN2[3], 3);
     }
+  }
+
+  else if (split_1 == "TR")
+  {
+    user_input = split_2.toInt();
+    user_input2 = split_2.toInt() * -1;
+    k = true;
+    counts = 0; 
+   
+    while ( k==true)
+    {
+      PID_control(user_input, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
+      PID_control(user_input2, KP[1], KD[1], KI[1], ENABLE[1], IN1[1], IN2[1], 1);
+      PID_control(user_input2, KP[2], KD[2], KI[2], ENABLE[2], IN1[2], IN2[2], 2);
+      PID_control(user_input, KP[3], KD[3], KI[3], ENABLE[3], IN1[3], IN2[3], 3);
+    }
+  }
+
+  else if (split_1 == "TL")
+  {
+    user_input = split_2.toInt();
+    user_input2 = split_2.toInt() * -1;
+    k = true;
+    counts = 0; 
+   
+    while ( k==true)
+    {
+      PID_control(user_input2, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
+      PID_control(user_input, KP[1], KD[1], KI[1], ENABLE[1], IN1[1], IN2[1], 1);
+      PID_control(user_input, KP[2], KD[2], KI[2], ENABLE[2], IN1[2], IN2[2], 2);
+      PID_control(user_input2, KP[3], KD[3], KI[3], ENABLE[3], IN1[3], IN2[3], 3);
+    }
+  }
+
+  else if (split_1 == "RU")
+  {
+    Serial.println("Wait");
   }
   
 }
