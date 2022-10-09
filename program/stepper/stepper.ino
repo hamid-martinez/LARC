@@ -24,35 +24,26 @@ void setup()
 
 void loop()
 {
-  while(Serial.available())
-  {
-    delay(50);
-    char c = Serial.read();
-    readString += c;
-  }
-
-  // Create a bigger input string to take commands for all motors: M190,M2180,M375,M4130
-  // Separte the string to create the different targets of each motor
-  comma_index = readString.indexOf(",");
-  split_1 = readString.substring(0, comma_index); // "F"
-  split_2 = readString.substring(comma_index + 1);  // "360"
+  read_serial_port();
 
   if (split_1 == "STUS")
   {
+    Serial.println(split_1);
     digitalWrite(stepper_dir, HIGH);
     user_input = split_2.toInt();
     Serial.println(user_input);
 
-    while (k==true)
+    move_stepper();
+
+    /*while (k==true)
     {
       move_stepper();
     }
 
-
     split_1 = "";
     split_2 = "";
     user_input = 0;
-    Serial.println(split_1);
+    Serial.println(split_1);*/
   }
   else
   {
@@ -64,11 +55,36 @@ void loop()
 void move_stepper()
 {
   for (int i = 0; i < user_input; i++) 
+  {
+    // These four lines result in 1 step:
+    digitalWrite(stepper_step, HIGH);
+    delayMicroseconds(1000);
+    digitalWrite(stepper_step, LOW);
+    delayMicroseconds(1000);
+  }
+
+  split_1 = "";
+  split_2 = "";
+}
+
+void read_serial_port() 
+{
+  readString = "";
+
+  if (Serial.available()) 
+  {
+    delay(10);
+
+    while (Serial.available() > 0) 
     {
-      // These four lines result in 1 step:
-      digitalWrite(stepper_step, HIGH);
-      delayMicroseconds(1000);
-      digitalWrite(stepper_step, LOW);
-      delayMicroseconds(1000);
+      readString += (char)Serial.read();
     }
+
+    comma_index = readString.indexOf(",");
+    split_1 = readString.substring(0, comma_index); // "F"
+    split_2 = readString.substring(comma_index + 1);  // "360"
+
+    Serial.flush();
+
+  }
 }
