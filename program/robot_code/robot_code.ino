@@ -34,7 +34,6 @@ int errors[] = {0, 0};
 String readString;
 int user_input, user_input2;
 bool k = true;
-
 int counts = 0;
 String split_1;
 String split_2;
