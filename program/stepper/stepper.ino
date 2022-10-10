@@ -1,11 +1,13 @@
 // Set up for stepper motor and limit switch
 const int stepper_step = 25;
 const int stepper_dir = 22;
-const int step_angle = 1.8; // from stepper data sheet
+const int stepper_enable = 27;
+
+const float step_angle = 1.8; // from stepper data sheet
 const int steps_per_rev = 360 / step_angle;
 
 const int limit_switch = 24;
-bool k;
+int limit_state = 0;
 
 // User input and communication variables
 String readString;
@@ -20,41 +22,79 @@ void setup()
 
   pinMode(stepper_step, OUTPUT);
   pinMode(stepper_dir, OUTPUT);
+  pinMode(stepper_enable, OUTPUT);
+  pinMode(limit_switch, INPUT);
 }
 
 void loop()
 {
   read_serial_port();
+  
+  limit_state = digitalRead(limit_switch);
+  Serial.print("Limit state: ");
+  Serial.println(limit_state);
 
-  if (split_1 == "STUS")
+  if(limit_switch == HIGH)
   {
-    Serial.println(split_1);
+    digitalWrite(stepper_enable, LOW);
+  }
+
+  if (split_1 == "PU")
+  {
+    Serial.print("split1: ");
+    Serial.print(split_1);
+    Serial.print(" ");
+    digitalWrite(stepper_enable, LOW);
     digitalWrite(stepper_dir, HIGH);
+
     user_input = split_2.toInt();
-    Serial.println(user_input);
+    Serial.print("User: ");
+    Serial.print(user_input);
+    Serial.println(" ");
 
-    move_stepper();
-
-    /*while (k==true)
+    for (int j = 0; j < user_input; j++)
     {
-      move_stepper();
+      stepper_one_turn();
     }
 
+    Serial.println("Ouside stepper function");
+    digitalWrite(stepper_enable, HIGH);
     split_1 = "";
     split_2 = "";
-    user_input = 0;
-    Serial.println(split_1);*/
   }
-  else
+
+  else if (split_1 == "PD")
   {
-    Serial.println("Doing nothing");
+    Serial.print("split1: ");
+    Serial.print(split_1);
+    Serial.print(" ");
+    digitalWrite(stepper_enable, LOW);
+    digitalWrite(stepper_dir, LOW);
+
+    user_input = split_2.toInt();
+    Serial.print("User: ");
+    Serial.print(user_input);
+    Serial.println(" ");
+
+    for (int j = 0; j < user_input; j++)
+    {
+      stepper_one_turn();
+    }
+
+    Serial.println("Ouside stepper function");
+    digitalWrite(stepper_enable, HIGH);
+    split_1 = "";
+    split_2 = "";
   }
 
 }
 
-void move_stepper()
+void stepper_one_turn()
 {
-  for (int i = 0; i < user_input; i++) 
+  Serial.println("Inside stepper function");
+  Serial.print("Steps per rev: ");
+  Serial.println(steps_per_rev);
+  for (int i = 0; i < steps_per_rev; i++) 
   {
     // These four lines result in 1 step:
     digitalWrite(stepper_step, HIGH);
@@ -62,9 +102,6 @@ void move_stepper()
     digitalWrite(stepper_step, LOW);
     delayMicroseconds(1000);
   }
-
-  split_1 = "";
-  split_2 = "";
 }
 
 void read_serial_port() 

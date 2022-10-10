@@ -40,8 +40,15 @@ String split_2;
 int comma_index;
 
 // Set up for stepper motor and limit switch
-const int stepper_step = 2;
-const int stepper_dir = 1;
+const int stepper_step = 25;
+const int stepper_dir = 22;
+const int stepper_enable = 27;
+
+const float step_angle = 1.8; // from stepper data sheet
+const int steps_per_rev = 360 / step_angle;
+
+const int limit_switch = 24;
+int limit_state = 0;
 
 void setup() 
 {
@@ -62,24 +69,18 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(ENCA[1]), readEncoder<1>, RISING);
   attachInterrupt(digitalPinToInterrupt(ENCA[2]), readEncoder<2>, RISING);
   attachInterrupt(digitalPinToInterrupt(ENCA[3]), readEncoder<3>, RISING);
+
+  pinMode(stepper_step, OUTPUT);
+  pinMode(stepper_dir, OUTPUT);
+  pinMode(stepper_enable, OUTPUT);
+  pinMode(limit_switch, INPUT);
   
 }
 
 void loop() 
 {
-  while(Serial.available())
-  {
-    delay(50);
-    char c = Serial.read();
-    readString += c;
-  }
 
-  // Create a bigger input string to take commands for all motors: M190,M2180,M375,M4130
-  // Separte the string to create the different targets of each motor
-  comma_index = readString.indexOf(",");
-  split_1 = readString.substring(0, comma_index); // "F"
-  split_2 = readString.substring(comma_index + 1);  // "360"
-
+  read_serial_port();
 
   if(split_1 == "F")
   {
@@ -175,11 +176,74 @@ void loop()
     }
   }
 
-  else if (split_1 == "RU")
+  else if (split_1 == "PU")
   {
-    Serial.println("Wait");
+    digitalWrite(stepper_enable, LOW);
+    digitalWrite(stepper_dir, HIGH);
+
+    user_input = split_2.toInt();
+
+    for (int j = 0; j < user_input; j++)
+    {
+      stepper_one_turn();
+    }
+
+    digitalWrite(stepper_enable, HIGH);
+    split_1 = "";
+    split_2 = "";
+  }
+
+  else if (split_1 == "PD")
+  {
+    digitalWrite(stepper_enable, LOW);
+    digitalWrite(stepper_dir, LOW);
+
+    user_input = split_2.toInt();
+
+    for (int j = 0; j < user_input; j++)
+    {
+      stepper_one_turn();
+    }
+
+    digitalWrite(stepper_enable, HIGH);
+    split_1 = "";
+    split_2 = "";
   }
   
+}
+
+void read_serial_port() 
+{
+  readString = "";
+
+  if (Serial.available()) 
+  {
+    delay(10);
+
+    while (Serial.available() > 0) 
+    {
+      readString += (char)Serial.read();
+    }
+
+    comma_index = readString.indexOf(",");
+    split_1 = readString.substring(0, comma_index); // "F"
+    split_2 = readString.substring(comma_index + 1);  // "360"
+
+    Serial.flush();
+
+  }
+}
+
+void stepper_one_turn()
+{
+  for (int i = 0; i < steps_per_rev; i++) 
+  {
+    // These four lines result in 1 step:
+    digitalWrite(stepper_step, HIGH);
+    delayMicroseconds(1000);
+    digitalWrite(stepper_step, LOW);
+    delayMicroseconds(1000);
+  }
 }
 
 void PID_control(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int in1_in, int in2_in, int motor)
@@ -306,30 +370,15 @@ void readEncoder()
 {
   int b = digitalRead(ENCB[j]);
 
-  if(j == 1 || j == 2)
+  if (j == 1 || j == 2)
   {
-    if(b > 0)
-    {
-      posi[j]--;
-    }
-
-    else
-    {
-      posi[j]++;
-    }
+    if (b > 0) { posi[j]--; }
+    else { posi[j]++; } 
   }
 
   else
   {
-    if(b > 0)
-    {
-      posi[j]++;
-    }
-
-    else
-    {
-      posi[j]--;
-    }
+    if ( b > 0) { posi[j]++; }
+    else { posi[j]--; }
   }
-
 }
