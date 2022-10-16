@@ -40,19 +40,22 @@ String split_2;
 int comma_index;
 
 // Set up for stepper motor and limit switch
-const int stepper_step = 25;
+const int stepper_step = 24;
 const int stepper_dir = 22;
 const int stepper_enable = 27;
 
 const float step_angle = 1.8; // from stepper data sheet
 const int steps_per_rev = 360 / step_angle;
 
-const int limit_switch = 24;
+const int limit_switch = 23;
 int limit_state = 0;
+
+const int magnets = 31;
+int magnets_state = 0;
 
 void setup() 
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   for(int i = 0; i < motor_number; i++)
   {
@@ -79,6 +82,8 @@ void setup()
 
 void loop() 
 {
+  // Initial stepper configuration
+  digitalWrite(stepper_enable, HIGH);
 
   read_serial_port();
 
@@ -208,6 +213,23 @@ void loop()
     digitalWrite(stepper_enable, HIGH);
     split_1 = "";
     split_2 = "";
+  }
+
+  else if (split_1 == "EM")
+  {
+    magnets_state = split_2.toInt();
+
+    if (magnets_state == 0)
+    {
+      digitalWrite(magnets, LOW);
+      Serial.println("Magnets off");
+    }
+
+    else if (magnets_state == 1)
+    {
+      digitalWrite(magnets, HIGH);
+      Serial.println("Magnets on");
+    }
   }
   
 }
