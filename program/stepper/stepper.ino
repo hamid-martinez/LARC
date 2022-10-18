@@ -18,7 +18,7 @@ int user_input;
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   pinMode(stepper_step, OUTPUT);
   pinMode(stepper_dir, OUTPUT);
@@ -30,16 +30,17 @@ void loop()
 {
   read_serial_port();
 
-  if (split_1 == "LU")
-  {
-    limit_state = digitalRead(limit_switch);
-    Serial.println(limit_state);
-    
+  limit_state = digitalRead(limit_switch);
+
+  if (split_1 == "PZ")
+  {    
     digitalWrite(stepper_enable, LOW);
     digitalWrite(stepper_dir, HIGH);
 
     while (limit_state != HIGH)
     {
+      limit_state = digitalRead(limit_switch);
+
       digitalWrite(stepper_step, HIGH);
       delayMicroseconds(1000);
       digitalWrite(stepper_step, LOW);

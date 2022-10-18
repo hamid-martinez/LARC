@@ -54,7 +54,7 @@ int magnets_state = 0;
 
 void setup() 
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   for(int i = 0; i < motor_number; i++)
   {
