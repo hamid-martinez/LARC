@@ -24,6 +24,11 @@ const int KP[] = {3.5, 3.5, 3.5, 3.5}; // decreases rise time
 const int KI[] = {0.02, 0.02, 0.02, 0.02}; // eliminates steady-state error
 const int KD[] = {0.25, 0.25, 0.25, 0.25}; // decreases overshoot
 
+// const int KP[] = {1, 1, 1, 1}; // decreases rise time
+// const int KI[] = {0, 0, 0, 0}; // eliminates steady-state error
+// const int KD[] = {0, 0, 0, 0}; // decreases overshoot
+
+
 // PID variables used in function
 long prevT = 0;
 float eprev = 0;
@@ -46,7 +51,7 @@ const int stepper_enable = 27;
 const float step_angle = 1.8; // from stepper data sheet
 const int steps_per_rev = 360 / step_angle;
 
-const int limit_switch = 23;
+const int limit_switch = 39;
 int limit_state = 0;
 
 const int magnets = 31;
@@ -86,7 +91,25 @@ void loop()
 
   read_serial_port();
 
-  if(split_1 == "F")
+  limit_state = digitalRead(limit_switch);
+
+  if (split_1 == "PZ")
+  {    
+    digitalWrite(stepper_enable, LOW);
+    digitalWrite(stepper_dir, HIGH);
+
+    while (limit_state != HIGH)
+    {
+      limit_state = digitalRead(limit_switch);
+
+      digitalWrite(stepper_step, HIGH);
+      delayMicroseconds(1000);
+      digitalWrite(stepper_step, LOW);
+      delayMicroseconds(1000);
+    }
+  }
+
+  else if (split_1 == "F")
   {
     user_input = split_2.toInt();
     k = true;
@@ -337,7 +360,7 @@ void PID_control(int user_input, int kp_in, int ki_in , int kd_in, int enable_in
 
   counts = counts + 1;
 
-  if (counts > 1500 )
+  if (counts > 100 )
   {
     for (int i = 0; i < motor_number; i++)
     {
