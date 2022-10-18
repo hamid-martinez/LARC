@@ -264,7 +264,7 @@ void read_serial_port()
 
     while (Serial.available() > 0) 
     {
-      readString += (char)Serial.read();
+      readString += Serial.readStringUntil('\n');
     }
 
     comma_index = readString.indexOf(",");
