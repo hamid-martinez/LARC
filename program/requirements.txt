@@ -1,0 +1,2 @@
+virtualenv==20.16.5
+gspread==5.6.0
