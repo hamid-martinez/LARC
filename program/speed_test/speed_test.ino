@@ -34,7 +34,7 @@ void setup()
 void loop()
 {
     //int pwr = 255;
-    for (int i = 0; i < 256; i++)
+    for (int i = 0; i < 255; i++)
     {
         int dir = -1;
         setMotor(dir, i, ENABLE[0], IN1[0], IN2[0]);
@@ -53,10 +53,14 @@ void loop()
         posPrev = pos;
         prevT = currT;
 
-        Serial.print(velocity);
+        //convert to rpm
+        float v1 = velocity/495.0*60.0;
+        float v2 = velocity2/495.0*60.0;
+
+        Serial.print(v2);
         Serial.println();
 
-        if (i == 255)
+        if (i > 253)
         {
             delay(3000);
         }
