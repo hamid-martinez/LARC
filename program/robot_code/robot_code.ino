@@ -20,19 +20,14 @@ const int pwm_resolution = 255; // The max duty cycle value for the pwm signal
 // control_array[] = {kp_m1, kp_m2, kp_m3...};
 // start values: 3.5, 0.02, 0.25
 // safe values: 1, 0, 0
-const int KP[] = {3.5, 3.5, 3.5, 3.5}; // decreases rise time
-const int KI[] = {0.02, 0.02, 0.02, 0.02}; // eliminates steady-state error
-const int KD[] = {0.25, 0.25, 0.25, 0.25}; // decreases overshoot
-
-// const int KP[] = {1, 1, 1, 1}; // decreases rise time
-// const int KI[] = {0, 0, 0, 0}; // eliminates steady-state error
-// const int KD[] = {0, 0, 0, 0}; // decreases overshoot
-
+const int KP[] = {1, 1, 1, 1}; // decreases rise time
+const int KI[] = {0, 0, 0.1, 0}; // eliminates steady-state error
+const int KD[] = {0, 0, 0.1, 0}; // decreases overshoot
 
 // PID variables used in function
-long prevT = 0;
-float eprev = 0;
-float eintegral = 0;
+long prevT[] = {0, 0, 0, 0};
+float eprev[] = {0, 0, 0, 0};
+float eintegral[] = {0, 0, 0, 0};
 
 // User input and communication variables
 String readString;
@@ -297,8 +292,8 @@ void PID_control(int user_input, int kp_in, int ki_in , int kd_in, int enable_in
   float kd = kd_in; // decreases overshoot
 
   long currT = micros();
-  float deltaT = ((float) (currT - prevT))/( 1.0e6 );
-  prevT = currT;
+  float deltaT = ((float) (currT - prevT[motor]))/( 1.0e6 );
+  prevT[motor] = currT;
 
   int pos = 0;
 
@@ -311,13 +306,13 @@ void PID_control(int user_input, int kp_in, int ki_in , int kd_in, int enable_in
   int e = pos - target;
 
   // derivative
-  float dedt = (e-eprev)/(deltaT);
+  float dedt = (e-eprev[motor])/(deltaT);
 
   // integral
-  eintegral = eintegral + e*deltaT;
+  eintegral[motor] = eintegral[motor] + e*deltaT;
 
   // control signal
-  float u = kp*e + kd*dedt + ki*eintegral;
+  float u = kp*e + kd*dedt + ki*eintegral[motor];
 
   // motor power
   float pwr = fabs(u);
@@ -338,7 +333,7 @@ void PID_control(int user_input, int kp_in, int ki_in , int kd_in, int enable_in
   setMotor(dir, pwr, enable_in, in1_in, in2_in);
 
   // store previous error
-  eprev = e;
+  eprev[motor] = e;
 
   // "Motor: x , Target: x , Pos: x "
   Serial.println(" ");
@@ -355,12 +350,12 @@ void PID_control(int user_input, int kp_in, int ki_in , int kd_in, int enable_in
   Serial.print(counts);
   Serial.print(" , ");
   Serial.print("Error: ");
-  Serial.print(eprev);
+  Serial.print(eprev[motor]);
   Serial.println(" ");
 
   counts = counts + 1;
 
-  if (counts > 100 )
+  if (counts > 500 )
   {
     for (int i = 0; i < motor_number; i++)
     {
