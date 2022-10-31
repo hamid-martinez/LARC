@@ -20,9 +20,9 @@ const int pwm_resolution = 255; // The max duty cycle value for the pwm signal
 // control_array[] = {kp_m1, kp_m2, kp_m3...};
 // start values: 3.5, 0.02, 0.25
 // safe values: 1, 0, 0
-const int KP[] = {1, 1, 1, 1}; // decreases rise time
-const int KI[] = {0, 0, 0.1, 0}; // eliminates steady-state error
-const int KD[] = {0, 0, 0.1, 0}; // decreases overshoot
+const int KP[] = {1, 1, 2, 1}; // decreases rise time
+const int KI[] = {0, 0, 0, 0}; // eliminates steady-state error
+const int KD[] = {0, 0, 0.025, 0}; // decreases overshoot
 
 // PID variables used in function
 long prevT[] = {0, 0, 0, 0};
