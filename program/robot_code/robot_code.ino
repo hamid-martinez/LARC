@@ -448,6 +448,8 @@ void PID_control(int user_input, int kp_in, int ki_in , int kd_in, int enable_in
 
   counts = counts + 1;
 
+  Serial.println(u);
+
   if (counts > 2000)
   {
     for (int i = 0; i < motor_number; i++)
@@ -735,7 +737,7 @@ void PID_M4(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
 
   counts = counts + 1;
 
-  if (e > 1)
+  if (u > 0 && e > 1)
   {  
     analogWrite(ENABLE[3], 0);
     posi[3] = 0;
