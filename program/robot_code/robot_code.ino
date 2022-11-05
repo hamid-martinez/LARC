@@ -20,19 +20,36 @@ const int pwm_resolution = 255; // The max duty cycle value for the pwm signal
 // control_array[] = {kp_m1, kp_m2, kp_m3...};
 // start values: 3.5, 0.02, 0.25
 // safe values: 1, 0, 0
-const int KP[] = {1, 1, 2, 1}; // decreases rise time
-const int KI[] = {0, 0, 0, 0}; // eliminates steady-state error
-const int KD[] = {0, 0, 0.025, 0}; // decreases overshoot
+const int KP[] = {10, 10, 10, 10}; // decreases rise time
+const int KI[] = {0.01, 0.01, 0.01, 0.01}; // eliminates steady-state error
+const int KD[] = {1, 1, 1, 1}; // decreases overshoot
 
 // PID variables used in function
-long prevT[] = {0, 0, 0, 0};
-float eprev[] = {0, 0, 0, 0};
-float eintegral[] = {0, 0, 0, 0};
+long prevT_M1 = 0;
+float eprev_M1 = 0;
+float eintegral_M1 = 0;
+
+long prevT_M2 = 0;
+float eprev_M2 = 0;
+float eintegral_M2 = 0;
+
+long prevT_M3 = 0;
+float eprev_M3 = 0;
+float eintegral_M3 = 0;
+
+long prevT_M4 = 0;
+float eprev_M4 = 0;
+float eintegral_M4 = 0;
+
+bool k = false, k2 = false, k3 = false, k4 = false;
+
+long prevT[] = {0,0,0,0};
+float eprev[] = {0,0,0,0};
+float eintegral[] = {0,0,0,0};
 
 // User input and communication variables
 String readString;
 int user_input, user_input2;
-bool k = true;
 int counts = 0;
 String split_1;
 String split_2;
@@ -51,6 +68,11 @@ int limit_state = 0;
 
 const int magnets = 31;
 int magnets_state = 0;
+
+int index1, index2, index3;
+String split_2_1, split_2_2, split_2_3, split_2_4;
+int M;
+float kp, ki, kd; 
 
 void setup() 
 {
@@ -108,14 +130,17 @@ void loop()
   {
     user_input = split_2.toInt();
     k = true;
+    k2 = true;
+    k3 = true;
+    k4 = true;
     counts = 0; 
    
-    while (k==true)
+    while (k==true && k2 == true && k3 == true && k4 ==true)
     {
-      for ( int i = 0; i < motor_number; i++)
-      {
-        PID_control(user_input, KP[i], KD[i], KI[i], ENABLE[i], IN1[i], IN2[i], i);
-      }
+      PID_M1(user_input, KP[0], KI[0], KD[0], ENABLE[0], IN1[0], IN2[0]);
+      PID_M2(user_input, KP[1], KI[1], KD[1], ENABLE[1], IN1[1], IN2[1]);
+      PID_M3(user_input, KP[2], KI[2], KD[2], ENABLE[2], IN1[2], IN2[2]);
+      PID_M4(user_input, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3]);
     }
   }
 
@@ -129,7 +154,7 @@ void loop()
     {
       for ( int i = 0; i < motor_number; i++)
       {
-        PID_control(user_input, KP[i], KD[i], KI[i], ENABLE[i], IN1[i], IN2[i], i);
+        PID_control(user_input, KP[i], KI[i], KD[i], ENABLE[i], IN1[i], IN2[i], i);
       }
     }
   }
@@ -143,10 +168,10 @@ void loop()
    
     while ( k==true)
     {
-      PID_control(user_input, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
-      PID_control(user_input2, KP[1], KD[1], KI[1], ENABLE[1], IN1[1], IN2[1], 1);
-      PID_control(user_input, KP[2], KD[2], KI[2], ENABLE[2], IN1[2], IN2[2], 2);
-      PID_control(user_input2, KP[3], KD[3], KI[3], ENABLE[3], IN1[3], IN2[3], 3);
+      PID_control(user_input, KP[0], KI[0], KD[0], ENABLE[0], IN1[0], IN2[0], 0);
+      PID_control(user_input2, KP[1], KI[1], KD[1], ENABLE[1], IN1[1], IN2[1], 1);
+      PID_control(user_input, KP[2], KI[2], KD[2], ENABLE[2], IN1[2], IN2[2], 2);
+      PID_control(user_input2, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3], 3);
     }
   }
   
@@ -159,10 +184,10 @@ void loop()
    
     while ( k==true)
     {
-      PID_control(user_input2, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
-      PID_control(user_input, KP[1], KD[1], KI[1], ENABLE[1], IN1[1], IN2[1], 1);
-      PID_control(user_input2, KP[2], KD[2], KI[2], ENABLE[2], IN1[2], IN2[2], 2);
-      PID_control(user_input, KP[3], KD[3], KI[3], ENABLE[3], IN1[3], IN2[3], 3);
+      PID_control(user_input2, KP[0], KI[0], KD[0], ENABLE[0], IN1[0], IN2[0], 0);
+      PID_control(user_input, KP[1], KI[1], KD[1], ENABLE[1], IN1[1], IN2[1], 1);
+      PID_control(user_input2, KP[2], KI[2], KD[2], ENABLE[2], IN1[2], IN2[2], 2);
+      PID_control(user_input, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3], 3);
     }
   }
 
@@ -175,10 +200,10 @@ void loop()
    
     while ( k==true)
     {
-      PID_control(user_input, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
-      PID_control(user_input2, KP[1], KD[1], KI[1], ENABLE[1], IN1[1], IN2[1], 1);
-      PID_control(user_input2, KP[2], KD[2], KI[2], ENABLE[2], IN1[2], IN2[2], 2);
-      PID_control(user_input, KP[3], KD[3], KI[3], ENABLE[3], IN1[3], IN2[3], 3);
+      PID_control(user_input, KP[0], KI[0], KD[0], ENABLE[0], IN1[0], IN2[0], 0);
+      PID_control(user_input2, KP[1], KI[1], KD[1], ENABLE[1], IN1[1], IN2[1], 1);
+      PID_control(user_input2, KP[2], KI[2], KD[2], ENABLE[2], IN1[2], IN2[2], 2);
+      PID_control(user_input, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3], 3);
     }
   }
 
@@ -191,10 +216,10 @@ void loop()
    
     while ( k==true)
     {
-      PID_control(user_input2, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
-      PID_control(user_input, KP[1], KD[1], KI[1], ENABLE[1], IN1[1], IN2[1], 1);
-      PID_control(user_input, KP[2], KD[2], KI[2], ENABLE[2], IN1[2], IN2[2], 2);
-      PID_control(user_input2, KP[3], KD[3], KI[3], ENABLE[3], IN1[3], IN2[3], 3);
+      PID_control(user_input2, KP[0], KI[0], KD[0], ENABLE[0], IN1[0], IN2[0], 0);
+      PID_control(user_input, KP[1], KI[1], KD[1], ENABLE[1], IN1[1], IN2[1], 1);
+      PID_control(user_input, KP[2], KI[2], KD[2], ENABLE[2], IN1[2], IN2[2], 2);
+      PID_control(user_input2, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3], 3);
     }
   }
 
@@ -244,6 +269,92 @@ void loop()
     else if (magnets_state == 1)
     {
       digitalWrite(magnets, HIGH);
+    }
+  }
+
+  else if (split_1 == "PID")
+  {
+    k = true;
+    counts = 0;
+
+    // "PID,1#1.5#3.45#7.49"
+    index1 = split_2.indexOf("#");
+    index2 = split_2.indexOf("#", index1 + 1);
+    index3 = split_2.indexOf("#", index2 + 1);
+
+    split_2_1 = split_2.substring(0, index1); // to indicate motor number
+    split_2_2 = split_2.substring(index1 + 1, index2);
+    split_2_3 = split_2.substring(index2 + 1, index3);
+    split_2_4 = split_2.substring(index3 + 1);
+
+    M = split_2_1.toInt();
+    kp = split_2_2.toFloat();
+    ki = split_2_3.toFloat();
+    kd = split_2_4.toFloat();
+
+    Serial.println("Test: ");
+    Serial.print(M);
+    Serial.print(", ");
+    Serial.print(kp);
+    Serial.print(", ");
+    Serial.print(ki);
+    Serial.print(", ");
+    Serial.println(kd);
+
+    delay(1000);
+
+    while (k==true)
+    {
+      PID_control(360, kp, ki, kd, ENABLE[M], IN1[M], IN2[M], M);
+    }
+
+  }
+
+  else if (split_1 == "T1")
+  {
+    user_input = split_2.toInt();
+    k = true;
+    counts = 0; 
+   
+    while (k==true)
+    {
+      PID_M1(user_input, KP[0], KI[0], KD[0], ENABLE[0], IN1[0], IN2[0]);
+    }
+  }
+
+  else if (split_1 == "T2")
+  {
+    user_input = split_2.toInt();
+    k = true;
+    counts = 0; 
+   
+    while (k==true)
+    {
+      PID_M2(user_input, KP[1], KI[1], KD[1], ENABLE[1], IN1[1], IN2[1]);
+    }
+  }
+
+  else if (split_1 == "T3")
+  {
+    user_input = split_2.toInt();
+    k = true;
+    counts = 0; 
+   
+    while (k==true)
+    {
+      PID_M3(user_input, KP[2], KI[2], KD[2], ENABLE[2], IN1[2], IN2[2]);
+    }
+  }
+
+  else if (split_1 == "T4")
+  {
+    user_input = split_2.toInt();
+    k = true;
+    counts = 0; 
+   
+    while (k==true)
+    {
+      PID_M4(user_input, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3]);
     }
   }
   
@@ -335,27 +446,11 @@ void PID_control(int user_input, int kp_in, int ki_in , int kd_in, int enable_in
   // store previous error
   eprev[motor] = e;
 
-  // "Motor: x , Target: x , Pos: x "
-  Serial.println(" ");
-  Serial.print("Motor: ");
-  Serial.print(motor);
-  Serial.print(" , ");
-  Serial.print("Target: ");
-  Serial.print(target);
-  Serial.print(" , ");
-  Serial.print("Pos: ");
-  Serial.print(pos);
-  Serial.print(" , ");
-  Serial.print("Counts: ");
-  Serial.print(counts);
-  Serial.print(" , ");
-  Serial.print("Error: ");
-  Serial.print(eprev[motor]);
-  Serial.println(" ");
-
   counts = counts + 1;
 
-  if (counts > 500 )
+  Serial.println(u);
+
+  if (counts > 2000)
   {
     for (int i = 0; i < motor_number; i++)
     {
@@ -366,6 +461,290 @@ void PID_control(int user_input, int kp_in, int ki_in , int kd_in, int enable_in
     split_2 = "";
     readString = "";
     k = false;
+  }
+
+}
+
+void PID_M1(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int in1_in, int in2_in)
+{
+  int target = map(user_input, 0, 360, 0, 495);
+
+  float kp = kp_in; // decreases rise time
+  float ki = ki_in; // eliminates steady-state error
+  float kd = kd_in; // decreases overshoot
+
+  long currT = micros();
+  float deltaT = ((float) (currT - prevT_M1))/( 1.0e6 );
+  prevT_M1 = currT;
+
+  int pos = 0;
+
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) 
+  {
+    pos = posi[0];
+  }
+
+  // error
+  int e = pos - target;
+
+  // derivative
+  float dedt = (e-eprev_M1)/(deltaT);
+
+  // integral
+  eintegral_M1 = eintegral_M1 + e*deltaT;
+
+  // control signal
+  float u = kp*e + kd*dedt + ki*eintegral_M1;
+
+  // motor power
+  float pwr = fabs(u);
+
+  if ( pwr > pwm_resolution )
+  {
+    pwr = pwm_resolution;
+  }
+
+  // motor direction
+  int dir = 1;
+
+  if ( u < 0 )
+  {
+    dir = -1;
+  }
+
+  setMotor(dir, pwr, enable_in, in1_in, in2_in);
+
+  // store previous error
+  eprev_M1 = e;
+
+  /* Serial.print(motor);
+  Serial.print(", ");
+  Serial.println(e); */
+  Serial.println(pos);
+
+  counts = counts + 1;
+
+  if (e > 1)
+  {  
+    analogWrite(ENABLE[0], 0);
+    posi[0] = 0;
+    split_1 = "";
+    split_2 = "";
+    readString = "";
+    k = false;
+  }
+
+}
+
+void PID_M2(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int in1_in, int in2_in)
+{
+  int target = map(user_input, 0, 360, 0, 495);
+
+  float kp = kp_in; // decreases rise time
+  float ki = ki_in; // eliminates steady-state error
+  float kd = kd_in; // decreases overshoot
+
+  long currT = micros();
+  float deltaT = ((float) (currT - prevT_M2))/( 1.0e6 );
+  prevT_M2 = currT;
+
+  int pos = 0;
+
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) 
+  {
+    pos = posi[1];
+  }
+
+  // error
+  int e = pos - target;
+
+  // derivative
+  float dedt = (e-eprev_M2)/(deltaT);
+
+  // integral
+  eintegral_M2 = eintegral_M2 + e*deltaT;
+
+  // control signal
+  float u = kp*e + kd*dedt + ki*eintegral_M2;
+
+  // motor power
+  float pwr = fabs(u);
+
+  if ( pwr > pwm_resolution )
+  {
+    pwr = pwm_resolution;
+  }
+
+  // motor direction
+  int dir = 1;
+
+  if ( u < 0 )
+  {
+    dir = -1;
+  }
+
+  setMotor(dir, pwr, enable_in, in1_in, in2_in);
+
+  // store previous error
+  eprev_M2 = e;
+
+  /* Serial.print(motor);
+  Serial.print(", ");
+  Serial.println(e); */
+  Serial.println(pos);
+
+  counts = counts + 1;
+
+  if (e > 1)
+  {  
+    analogWrite(ENABLE[1], 0);
+    posi[1] = 0;
+    split_1 = "";
+    split_2 = "";
+    readString = "";
+    k2 = false;
+  }
+
+}
+
+void PID_M3(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int in1_in, int in2_in)
+{
+  int target = map(user_input, 0, 360, 0, 495);
+
+  float kp = kp_in; // decreases rise time
+  float ki = ki_in; // eliminates steady-state error
+  float kd = kd_in; // decreases overshoot
+
+  long currT = micros();
+  float deltaT = ((float) (currT - prevT_M3))/( 1.0e6 );
+  prevT_M3 = currT;
+
+  int pos = 0;
+
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) 
+  {
+    pos = posi[2];
+  }
+
+  // error
+  int e = pos - target;
+
+  // derivative
+  float dedt = (e-eprev_M3)/(deltaT);
+
+  // integral
+  eintegral_M3 = eintegral_M3 + e*deltaT;
+
+  // control signal
+  float u = kp*e + kd*dedt + ki*eintegral_M3;
+
+  // motor power
+  float pwr = fabs(u);
+
+  if ( pwr > pwm_resolution )
+  {
+    pwr = pwm_resolution;
+  }
+
+  // motor direction
+  int dir = 1;
+
+  if ( u < 0 )
+  {
+    dir = -1;
+  }
+
+  setMotor(dir, pwr, enable_in, in1_in, in2_in);
+
+  // store previous error
+  eprev_M3 = e;
+
+  /* Serial.print(motor);
+  Serial.print(", ");
+  Serial.println(e); */
+  Serial.println(pos);
+
+  counts = counts + 1;
+
+  if (e > 1)
+  {  
+    analogWrite(ENABLE[2], 0);
+    posi[2] = 0;
+    split_1 = "";
+    split_2 = "";
+    readString = "";
+    k3 = false;
+  }
+
+}
+
+void PID_M4(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int in1_in, int in2_in)
+{
+  int target = map(user_input, 0, 360, 0, 495);
+
+  float kp = kp_in; // decreases rise time
+  float ki = ki_in; // eliminates steady-state error
+  float kd = kd_in; // decreases overshoot
+
+  long currT = micros();
+  float deltaT = ((float) (currT - prevT_M4))/( 1.0e6 );
+  prevT_M4 = currT;
+
+  int pos = 0;
+
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) 
+  {
+    pos = posi[3];
+  }
+
+  // error
+  int e = pos - target;
+
+  // derivative
+  float dedt = (e-eprev_M4)/(deltaT);
+
+  // integral
+  eintegral_M4 = eintegral_M4 + e*deltaT;
+
+  // control signal
+  float u = kp*e + kd*dedt + ki*eintegral_M4;
+
+  // motor power
+  float pwr = fabs(u);
+
+  if ( pwr > pwm_resolution )
+  {
+    pwr = pwm_resolution;
+  }
+
+  // motor direction
+  int dir = 1;
+
+  if ( u < 0 )
+  {
+    dir = -1;
+  }
+
+  setMotor(dir, pwr, enable_in, in1_in, in2_in);
+
+  // store previous error
+  eprev_M4 = e;
+
+  /* Serial.print(motor);
+  Serial.print(", ");
+  Serial.println(e); */
+  Serial.println(pos);
+
+  counts = counts + 1;
+
+  if (u > 0 && e > 1)
+  {  
+    analogWrite(ENABLE[3], 0);
+    posi[3] = 0;
+    split_1 = "";
+    split_2 = "";
+    readString = "";
+    k4 = false;
   }
 
 }
