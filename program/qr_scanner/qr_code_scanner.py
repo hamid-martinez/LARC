@@ -2,13 +2,6 @@ import cv2
 from picamera import PiCamera
 from time import sleep
 
-camera = PiCamera()
-camera.capture("/home/pi/Desktop/LARC/LARC/program/qr_scanner/qr_code.png")
-
-#qr = read_qr_code()
-
-#print(qr)
-
 def read_qr_code(filename):
     """Read an image and read the QR code.
     
@@ -26,3 +19,10 @@ def read_qr_code(filename):
         return value
     except:
         return "Error"
+
+camera = PiCamera()
+camera.capture("/home/pi/Desktop/LARC/LARC/program/qr_scanner/qr_code.png")
+
+qr = read_qr_code("/home/pi/Desktop/LARC/LARC/program/qr_scanner/qr_code.png")
+
+print(qr)
