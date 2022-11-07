@@ -1,6 +1,8 @@
 import cv2
 from picamera import PiCamera
+import time
 
+# Based on https://practicaldatascience.co.uk/data-science/how-to-read-qr-codes-in-python-using-opencv
 # Suggested location for qr_code: "/home/pi/Desktop/LARC/LARC/program/qr_scanner/qr_code.png"
 
 class qr_code_scanner():
@@ -27,3 +29,8 @@ class qr_code_scanner():
 
         except:
             return "ERROR: No QR-code detected"
+
+# TEST
+""" qr = qr_code_scanner("/home/pi/Desktop/LARC/LARC/program/qr_scanner/qr_code.png")
+qr.take_picture()
+print(qr.read_qr_code()) """
