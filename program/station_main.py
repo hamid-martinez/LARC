@@ -5,6 +5,7 @@ from time import sleep
 sheet = "Inventory"
 work_sheet = "Products"
 sensor_state_sheet = [2,4] # Location at google sheet [row,column]
+incoming_sheet = [2,5]
 
 # Sheet communication
 sheet = Sheet_Comm(sheet, work_sheet)
@@ -23,21 +24,29 @@ GPIO.setup(enable, GPIO.OUT, initial = GPIO.HIGH)
 GPIO.setup(sensor, GPIO.IN)
 
 motor = GPIO.PWM(pwm,100)
-motor.start(0)
 
 while True:
 
-    #sensor_state = sensor.read_pin() #[0]
-    sensor_state = GPIO.input(sensor)
+    incoming = sheet.get_cell_value(incoming_sheet[0], incoming_sheet[1])
     sleep(0.5)
 
-    if sensor_state == 0:
-        GPIO.output(dir, GPIO.HIGH)
-        motor.ChangeDutyCycle(15)
-        GPIO.output(enable, GPIO.LOW)
-        sleep(0.5)
+    while incoming == "1":
 
-    if sensor_state == 1:
-        GPIO.output(enable, GPIO.HIGH)
-        motor.stop()
+        sensor_state = GPIO.input(sensor)
 
+        if sensor_state == 1:
+            motor.start(0)
+            GPIO.output(enable, GPIO.LOW)
+            GPIO.output(dir, GPIO.HIGH)
+            motor.ChangeDutyCycle(30)
+
+        elif sensor_state == 0:
+            motor.ChangeDutyCycle(0)
+            GPIO.output(enable, GPIO.HIGH)
+            motor.stop()
+            sheet.update_cell_value(sensor_state_sheet[0], sensor_state_sheet[1], "1")
+            sleep(0.5)
+            sheet.update_cell_value(incoming_sheet[0], incoming_sheet[1], "0")
+            sleep(0.5)
+            
+            break
