@@ -520,11 +520,11 @@ void PID_M1(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
   /* Serial.print(motor);
   Serial.print(", ");
   Serial.println(e); */
-  Serial.println(pos);
+  Serial.println(e);
 
   counts = counts + 1;
 
-  if (e > 1)
+  if (abs(e) < 6)
   {  
     analogWrite(ENABLE[0], 0);
     posi[0] = 0;
@@ -591,11 +591,11 @@ void PID_M2(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
   /* Serial.print(motor);
   Serial.print(", ");
   Serial.println(e); */
-  Serial.println(pos);
+  Serial.println(e);
 
   counts = counts + 1;
 
-  if (e > 1)
+  if (abs(e) < 3)
   {  
     analogWrite(ENABLE[1], 0);
     posi[1] = 0;
@@ -662,11 +662,11 @@ void PID_M3(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
   /* Serial.print(motor);
   Serial.print(", ");
   Serial.println(e); */
-  Serial.println(pos);
+  Serial.println(e);
 
   counts = counts + 1;
 
-  if (e > 1)
+  if (abs(e) < 5)
   {  
     analogWrite(ENABLE[2], 0);
     posi[2] = 0;
@@ -733,11 +733,11 @@ void PID_M4(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
   /* Serial.print(motor);
   Serial.print(", ");
   Serial.println(e); */
-  Serial.println(pos);
+  Serial.println(e);
 
   counts = counts + 1;
 
-  if (u > 0 && e > 1)
+  if ( abs(e) < 5)
   {  
     analogWrite(ENABLE[3], 0);
     posi[3] = 0;
