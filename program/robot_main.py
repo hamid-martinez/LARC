@@ -12,5 +12,5 @@ sheet = Sheet_Comm(sheet, work_sheet)
 # Arduino serial communication
 arduino = Rpi_Comm("/dev/ttyUSB0", 9600, 1)
 
-arduino.send_command("PZ,1")
+arduino.send_command("PD,4")
 sleep(1)
