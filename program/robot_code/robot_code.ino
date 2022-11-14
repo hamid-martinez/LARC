@@ -61,7 +61,7 @@ const int stepper_dir = 22;
 const int stepper_enable = 27;
 
 const float step_angle = 1.8; // from stepper data sheet
-const int steps_per_rev = 360 / step_angle;
+const int steps_per_rev = 360; // step_angle
 
 const int limit_switch = 39;
 int limit_state = 0;
@@ -113,7 +113,7 @@ void loop()
   if (split_1 == "PZ")
   {    
     digitalWrite(stepper_enable, LOW);
-    digitalWrite(stepper_dir, HIGH);
+    digitalWrite(stepper_dir, LOW);
 
     while (limit_state != HIGH)
     {
@@ -226,7 +226,7 @@ void loop()
   else if (split_1 == "PU")
   {
     digitalWrite(stepper_enable, LOW);
-    digitalWrite(stepper_dir, HIGH);
+    digitalWrite(stepper_dir, LOW);
 
     user_input = split_2.toInt();
 
@@ -243,7 +243,7 @@ void loop()
   else if (split_1 == "PD")
   {
     digitalWrite(stepper_enable, LOW);
-    digitalWrite(stepper_dir, LOW);
+    digitalWrite(stepper_dir, HIGH);
 
     user_input = split_2.toInt();
 
