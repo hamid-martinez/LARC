@@ -28,7 +28,7 @@ class qr_code_scanner():
             return value
 
         except:
-            return "ERROR: No QR-code detected"
+            return ""
 
 # TEST
 """ qr = qr_code_scanner("/home/pi/Desktop/LARC/LARC/program/qr_scanner/qr_code.png")

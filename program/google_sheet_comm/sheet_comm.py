@@ -1,4 +1,5 @@
 import gspread
+from time import sleep
 
 # This class will handle the writing and reading to the google spread sheet "database"
 # THE SHEET MUST BE CONFIGURED WITH GOOGLGE CLOUD
@@ -31,6 +32,7 @@ class Sheet_Comm():
 
         # To get single cell value
         cell = self.work_sheet.cell(self.row, self.col).value
+        sleep(1)
         return cell
 
     def insert_single_row(self, data: list, row_num: int):
