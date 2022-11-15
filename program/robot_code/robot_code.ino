@@ -124,6 +124,8 @@ void loop()
       digitalWrite(stepper_step, LOW);
       delayMicroseconds(1000);
     }
+
+    ready_notification();
   }
 
   else if (split_1 == "F")
@@ -238,6 +240,7 @@ void loop()
     digitalWrite(stepper_enable, HIGH);
     split_1 = "";
     split_2 = "";
+    ready_notification();
   }
 
   else if (split_1 == "PD")
@@ -255,6 +258,7 @@ void loop()
     digitalWrite(stepper_enable, HIGH);
     split_1 = "";
     split_2 = "";
+    ready_notification();
   }
 
   else if (split_1 == "EM")
@@ -270,6 +274,8 @@ void loop()
     {
       digitalWrite(magnets, HIGH);
     }
+
+    ready_notification();
   }
 
   else if (split_1 == "PID")
@@ -791,5 +797,11 @@ void readEncoder()
     if ( b > 0) { posi[j]++; }
     else { posi[j]--; }
   }
+}
+
+void ready_notification()
+{
+  Serial.println("Ready");
+  delay(1500);
 }
 
