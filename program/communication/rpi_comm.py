@@ -40,3 +40,10 @@ class Rpi_Comm():
         # If all checks are passed, then write to the serial port the given command
         self.arduino.write(self.cmd_to_send.encode("utf-8"))
         time.sleep(0.5) #wait for port to answer
+
+    def read_command(self):
+
+        while True:
+            if self.arduino.in_waiting > 0:
+                line = self.arduino.readline().decode("utf-8").rstrip()
+                return line
