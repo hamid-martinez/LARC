@@ -61,7 +61,7 @@ while True:
 
     if analysis == "1":
 
-        print("Analyzing picture...")
+        print("Analyzing picture...\n")
         qr.take_picture()
         extracted_qr = qr.read_qr_code()
 
@@ -73,7 +73,7 @@ while True:
             sleep(0.5)
 
         else:
-            print("ERROR: Failed to analyze")
+            print("ERROR: Failed to analyze\n")
 
         sheet.update_cell_value(analysis_sheet[0], analysis_sheet[1], "0")
         sleep(0.5)

@@ -1,6 +1,6 @@
 import cv2
 from picamera import PiCamera
-import time
+from time import sleep
 
 # Based on https://practicaldatascience.co.uk/data-science/how-to-read-qr-codes-in-python-using-opencv
 # Suggested location for qr_code: "/home/pi/Desktop/LARC/LARC/program/qr_scanner/qr_code.png"
@@ -24,7 +24,8 @@ class qr_code_scanner():
             img = cv2.imread(self.file_location)
             detect = cv2.QRCodeDetector()
             value, points, straight_qrcode = detect.detectAndDecode(img)
-
+            sleep(1)
+            
             return value
 
         except:
