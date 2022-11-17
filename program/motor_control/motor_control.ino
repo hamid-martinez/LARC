@@ -1,252 +1,216 @@
-#include <util/atomic.h>
+// This alternate version of the code does not require
+// atomic.h. Instead, interrupts() and noInterrupts() 
+// are used. Please use this code if your 
+// platform does not support ATOMIC_BLOCK.
 
-volatile int posi[] = {0, 0, 0, 0}; // add more for more motors
+// A class to compute the control signal
+class SimplePID
+{
+  private:
+    float kp, kd, ki, umax; // Parameters
+    float eprev, eintegral; // Storage
 
-#define motor_number 4
+  public:
+  // Constructor
+  SimplePID() : kp(1), ki(0), kd(0), umax(255), eprev(0.0), eintegral(0.0){}
 
-// Motor driver and encoder pin definitions as an array
-// To add more motors keep adding to the array
-// my_array[] = {value_M1, value_M2, value_M3, .....};
-// Try changing the encoder pins, in the arduino nano pin11 for enb did not work
-const int ENABLE[] = {13, 44, 7, 45};
-const int IN1[] = {12, 48, 6, 47};
-const int IN2[] = {11, 46, 5, 49};
-const int ENCA[] = {2, 3, 18, 19}; // Pins for interrupt signal
-const int ENCB[] = {53, 52, 51, 50};
+  // A function to set the parameters
+  void setParams(float kpIn, float kdIn, float kiIn, float umaxIn)
+  {
+    kp = kpIn; kd = kdIn; ki = kiIn; umax = umaxIn;
+  }
 
-const int pwm_resolution = 255; // The max duty cycle value for the pwm signal
+  // A function to compute the control signal
+  int evalu(int value, int target, float deltaT, int &pwr, int &dir)
+  {
+    // error
+    int e = target - value;
+  
+    // derivative
+    float dedt = (e-eprev)/(deltaT);
+  
+    // integral
+    eintegral = eintegral + e*deltaT;
+  
+    // control signal
+    float u = kp*e + kd*dedt + ki*eintegral;
+  
+    // motor power
+    pwr = (int) fabs(u);
 
-// PID values for each motor as an array
-// control_array[] = {kp_m1, kp_m2, kp_m3...};
-// start values: 3.5, 0.02, 0.25
-// safe values: 1, 0, 0
-const int KP[] = {10, 10, 10, 10}; // decreases rise time
-const int KI[] = {0.01, 0.01, 0.01, 0.01}; // eliminates steady-state error
-const int KD[] = {1, 1, 1, 1}; // decreases overshoot
+    if( pwr > umax )
+    {
+      pwr = umax;
+    }
+  
+    // motor direction
+    dir = 1;
 
-// PID variables used in function
-long prevT[] = {0, 0, 0, 0};
-float eprev[] = {0, 0, 0, 0};
-float eintegral[] = {0, 0, 0, 0};
+    if(u<0)
+    {
+      dir = -1;
+    }
+  
+    // store previous error
+    eprev = e;
 
-// User input and communication variables
+    return eprev;
+  }
+  
+};
+
+// How many motors
+#define NMOTORS 4
+
+// Pins
+const int enca[] = {2, 3, 18, 19};
+const int encb[] = {53, 52, 51, 50};
+const int pwm[] = {13, 44, 7, 45};
+const int in1[] = {12, 48, 6, 47};
+const int in2[] = {11, 46, 5, 49};
+
+// Globals
+long prevT = 0;
+volatile int posi[] = {0,0,0,0};
+
 String readString;
-int user_input, user_input2;
-bool k = true;
-int counts = 0;
 String split_1;
 String split_2;
 int comma_index;
 
-// Set up for stepper motor and limit switch
-const int stepper_step = 24;
-const int stepper_dir = 22;
-const int stepper_enable = 27;
+bool start = false;
 
-const float step_angle = 1.8; // from stepper data sheet
-const int steps_per_rev = 360 / step_angle;
+// PID class instances
+SimplePID pid[NMOTORS];
 
-const int limit_switch = 39;
-int limit_state = 0;
-
-const int magnets = 31;
-int magnets_state = 0;
-
-void setup() 
-{
+void setup() {
   Serial.begin(9600);
 
-  for(int i = 0; i < motor_number; i++)
+  for(int k = 0; k < NMOTORS; k++)
   {
-    pinMode(ENCA[i],INPUT);
-    pinMode(ENCB[i],INPUT);
+    pinMode(enca[k],INPUT);
+    pinMode(encb[k],INPUT);
+    pinMode(pwm[k],OUTPUT);
+    pinMode(in1[k],OUTPUT);
+    pinMode(in2[k],OUTPUT);
 
-    pinMode(ENABLE[i],OUTPUT);
-    pinMode(IN1[i],OUTPUT);
-    pinMode(IN2[i],OUTPUT);
+    pid[k].setParams(10,0.01,1,255);
   }
   
   // Set the interruption pins for the encoders
-  attachInterrupt(digitalPinToInterrupt(ENCA[0]), readEncoder<0>, RISING);
-  attachInterrupt(digitalPinToInterrupt(ENCA[1]), readEncoder<1>, RISING);
-  attachInterrupt(digitalPinToInterrupt(ENCA[2]), readEncoder<2>, RISING);
-  attachInterrupt(digitalPinToInterrupt(ENCA[3]), readEncoder<3>, RISING);
-
-  pinMode(stepper_step, OUTPUT);
-  pinMode(stepper_dir, OUTPUT);
-  pinMode(stepper_enable, OUTPUT);
-  pinMode(limit_switch, INPUT);
+  attachInterrupt(digitalPinToInterrupt(enca[0]), readEncoder<0>, RISING);
+  attachInterrupt(digitalPinToInterrupt(enca[1]), readEncoder<1>, RISING);
+  attachInterrupt(digitalPinToInterrupt(enca[2]), readEncoder<2>, RISING);
+  attachInterrupt(digitalPinToInterrupt(enca[3]), readEncoder<3>, RISING);
   
+  Serial.println("target pos");
 }
 
 void loop() 
 {
-  // Initial stepper configuration
-  digitalWrite(stepper_enable, HIGH);
 
   read_serial_port();
 
-  limit_state = digitalRead(limit_switch);
-
-  if (split_1 == "PZ")
-  {    
-    digitalWrite(stepper_enable, LOW);
-    digitalWrite(stepper_dir, HIGH);
-
-    while (limit_state != HIGH)
-    {
-      limit_state = digitalRead(limit_switch);
-
-      digitalWrite(stepper_step, HIGH);
-      delayMicroseconds(1000);
-      digitalWrite(stepper_step, LOW);
-      delayMicroseconds(1000);
-    }
-  }
-
-  else if (split_1 == "F")
+  if (split_1 == "S")
   {
-    user_input = split_2.toInt();
-    k = true;
-    counts = 0; 
-   
-    while (k==true)
+    start = true;
+    
+    while(start == true)
     {
-      for ( int i = 0; i < motor_number; i++)
+      // set target position
+      int target[NMOTORS];
+      target[0] = 495;
+      target[1] = 495;
+      target[2] = 495;
+      target[3] = 495;
+
+      // time difference
+      long currT = micros();
+      float deltaT = ((float) (currT - prevT))/( 1.0e6 );
+      prevT = currT;
+
+      // Read the position
+      int pos[NMOTORS];
+      noInterrupts(); // disable interrupts temporarily while reading
+      for(int k = 0; k < NMOTORS; k++)
       {
-        PID_control(user_input, KP[i], KD[i], KI[i], ENABLE[i], IN1[i], IN2[i], i);
+        pos[k] = posi[k];
       }
-    }
-  }
+      interrupts(); // turn interrupts back on
 
-  else if (split_1 == "B")
-  {
-    user_input = split_2.toInt() * -1;
-    k = true;
-    counts = 0; 
-   
-    while ( k==true)
-    {
-      for ( int i = 0; i < motor_number; i++)
+      // loop through the motors
+      for(int k = 0; k < NMOTORS; k++)
       {
-        PID_control(user_input, KP[i], KD[i], KI[i], ENABLE[i], IN1[i], IN2[i], i);
+        int pwr, dir, e;
+        // evaluate the control signal
+        e = pid[k].evalu(pos[k],target[k],deltaT,pwr,dir);
+        // signal the motor
+        setMotor(dir,pwr,pwm[k],in1[k],in2[k]);
+
+        if ( abs(e) < 10)
+        { 
+          for (int i = 0; i < 4; i++)
+          {
+            analogWrite(13, 0);
+            analogWrite(44, 0);
+            analogWrite(7, 0);
+            analogWrite(45, 0);
+          }
+          start = false;
+        }
       }
+
+      for(int k = 0; k < NMOTORS; k++)
+      {
+        Serial.print(target[k]);
+        Serial.print(" ");
+        Serial.print(pos[k]);
+        Serial.print(" ");
+      }
+      Serial.println();
     }
+
   }
-  
-  else if (split_1 == "R")
+
+}
+
+void setMotor(int dir, int pwmVal, int pwm, int in1, int in2)
+{
+  analogWrite(pwm,pwmVal);
+
+  if(dir == 1)
   {
-    user_input = split_2.toInt();
-    user_input2 = split_2.toInt() * -1;
-    k = true;
-    counts = 0; 
-   
-    while ( k==true)
-    {
-      PID_control(user_input, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
-      PID_control(user_input2, KP[1], KD[1], KI[1], ENABLE[1], IN1[1], IN2[1], 1);
-      PID_control(user_input, KP[2], KD[2], KI[2], ENABLE[2], IN1[2], IN2[2], 2);
-      PID_control(user_input2, KP[3], KD[3], KI[3], ENABLE[3], IN1[3], IN2[3], 3);
-    }
+    digitalWrite(in1,HIGH);
+    digitalWrite(in2,LOW);
   }
-  
-  else if (split_1 == "L")
+  else if(dir == -1)
   {
-    user_input = split_2.toInt();
-    user_input2 = split_2.toInt() * -1;
-    k = true;
-    counts = 0; 
-   
-    while ( k==true)
-    {
-      PID_control(user_input2, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
-      PID_control(user_input, KP[1], KD[1], KI[1], ENABLE[1], IN1[1], IN2[1], 1);
-      PID_control(user_input2, KP[2], KD[2], KI[2], ENABLE[2], IN1[2], IN2[2], 2);
-      PID_control(user_input, KP[3], KD[3], KI[3], ENABLE[3], IN1[3], IN2[3], 3);
-    }
+    digitalWrite(in1,LOW);
+    digitalWrite(in2,HIGH);
   }
-
-  else if (split_1 == "TR")
+  else
   {
-    user_input = split_2.toInt();
-    user_input2 = split_2.toInt() * -1;
-    k = true;
-    counts = 0; 
-   
-    while ( k==true)
-    {
-      PID_control(user_input, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
-      PID_control(user_input2, KP[1], KD[1], KI[1], ENABLE[1], IN1[1], IN2[1], 1);
-      PID_control(user_input2, KP[2], KD[2], KI[2], ENABLE[2], IN1[2], IN2[2], 2);
-      PID_control(user_input, KP[3], KD[3], KI[3], ENABLE[3], IN1[3], IN2[3], 3);
-    }
-  }
+    digitalWrite(in1,LOW);
+    digitalWrite(in2,LOW);
+  }  
+}
 
-  else if (split_1 == "TL")
+template <int j>
+void readEncoder()
+{
+  int b = digitalRead(encb[j]);
+
+  if (j == 0 || j == 3)
   {
-    user_input = split_2.toInt();
-    user_input2 = split_2.toInt() * -1;
-    k = true;
-    counts = 0; 
-   
-    while ( k==true)
-    {
-      PID_control(user_input2, KP[0], KD[0], KI[0], ENABLE[0], IN1[0], IN2[0], 0);
-      PID_control(user_input, KP[1], KD[1], KI[1], ENABLE[1], IN1[1], IN2[1], 1);
-      PID_control(user_input, KP[2], KD[2], KI[2], ENABLE[2], IN1[2], IN2[2], 2);
-      PID_control(user_input2, KP[3], KD[3], KI[3], ENABLE[3], IN1[3], IN2[3], 3);
-    }
+    if (b > 0) { posi[j]--; }
+    else { posi[j]++; } 
   }
 
-  else if (split_1 == "PU")
+  else if(j == 1 || j == 2)
   {
-    digitalWrite(stepper_enable, LOW);
-    digitalWrite(stepper_dir, HIGH);
-
-    user_input = split_2.toInt();
-
-    for (int j = 0; j < user_input; j++)
-    {
-      stepper_one_turn();
-    }
-
-    digitalWrite(stepper_enable, HIGH);
-    split_1 = "";
-    split_2 = "";
+    if ( b > 0) { posi[j]++; }
+    else { posi[j]--; }
   }
-
-  else if (split_1 == "PD")
-  {
-    digitalWrite(stepper_enable, LOW);
-    digitalWrite(stepper_dir, LOW);
-
-    user_input = split_2.toInt();
-
-    for (int j = 0; j < user_input; j++)
-    {
-      stepper_one_turn();
-    }
-
-    digitalWrite(stepper_enable, HIGH);
-    split_1 = "";
-    split_2 = "";
-  }
-
-  else if (split_1 == "EM")
-  {
-    magnets_state = split_2.toInt();
-
-    if (magnets_state == 0)
-    {
-      digitalWrite(magnets, LOW);
-    }
-
-    else if (magnets_state == 1)
-    {
-      digitalWrite(magnets, HIGH);
-    }
-  }
-  
 }
 
 void read_serial_port() 
@@ -269,153 +233,4 @@ void read_serial_port()
     Serial.flush();
 
   }
-}
-
-void stepper_one_turn()
-{
-  for (int i = 0; i < steps_per_rev; i++) 
-  {
-    // These four lines result in 1 step:
-    digitalWrite(stepper_step, HIGH);
-    delayMicroseconds(1000);
-    digitalWrite(stepper_step, LOW);
-    delayMicroseconds(1000);
-  }
-}
-
-void PID_control(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int in1_in, int in2_in, int motor)
-{
-  int target = map(user_input, 0, 360, 0, 495);
-
-  float kp = kp_in; // decreases rise time
-  float ki = ki_in; // eliminates steady-state error
-  float kd = kd_in; // decreases overshoot
-
-  long currT = micros();
-  float deltaT = ((float) (currT - prevT[motor]))/( 1.0e6 );
-  prevT[motor] = currT;
-
-  int pos = 0;
-
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) 
-  {
-    pos = posi[motor];
-  }
-
-  // error
-  int e = pos - target;
-
-  // derivative
-  float dedt = (e-eprev[motor])/(deltaT);
-
-  // integral
-  eintegral[motor] = eintegral[motor] + e*deltaT;
-
-  // control signal
-  float u = kp*e + kd*dedt + ki*eintegral[motor];
-
-  // motor power
-  float pwr = fabs(u);
-
-  if ( pwr > pwm_resolution )
-  {
-    pwr = pwm_resolution;
-  }
-
-  // motor direction
-  int dir = -1;
-
-  if ( u < 0 )
-  {
-    dir = 1;
-  }
-
-  setMotor(dir, pwr, enable_in, in1_in, in2_in);
-
-  // store previous error
-  eprev[motor] = e;
-
-  // "Motor: x , Target: x , Pos: x "
-  Serial.println(" ");
-  Serial.print("Motor: ");
-  Serial.print(motor);
-  Serial.print(" , ");
-  Serial.print("Target: ");
-  Serial.print(target);
-  Serial.print(" , ");
-  Serial.print("Pos: ");
-  Serial.print(pos);
-  Serial.print(" , ");
-  Serial.print("Counts: ");
-  Serial.print(counts);
-  Serial.print(" , ");
-  Serial.print("Error: ");
-  Serial.print(eprev[motor]);
-  Serial.println(" ");
-
-  counts = counts + 1;
-
-  if (abs(e) < 5)
-  {
-    for (int i = 0; i < motor_number; i++)
-    {
-      analogWrite(ENABLE[i], 0);
-      posi[i] = 0;
-    }
-    split_1 = "";
-    split_2 = "";
-    readString = "";
-    k = false;
-  }
-
-}
-
-void setMotor(int dir, int pwmVal, int ena, int in1, int in2)
-{
-
-  analogWrite(ena, pwmVal); // equivalent for esp32 ledcWrite(ena, pwmVal)
-
-  if(dir == 1)
-  {
-    digitalWrite(in1,HIGH);
-    digitalWrite(in2,LOW);
-  }
-
-  else if(dir == -1)
-  {
-    digitalWrite(in1,LOW);
-    digitalWrite(in2,HIGH);
-  }
-
-  else
-  {
-    digitalWrite(in1,LOW);
-    digitalWrite(in2,LOW);
-  }
-}
-
-// Creating a template generates a different version of the function
-// depending on the index that is called.
-template <int j>
-void readEncoder()
-{
-  int b = digitalRead(ENCB[j]);
-
-  if (j == 0 || j == 3)
-  {
-    if (b > 0) { posi[j]--; }
-    else { posi[j]++; } 
-  }
-
-  else if(j == 1 || j == 2)
-  {
-    if ( b > 0) { posi[j]++; }
-    else { posi[j]--; }
-  }
-}
-
-void ready_notification()
-{
-  Serial.println("Ready");
-  delay(1500);
 }

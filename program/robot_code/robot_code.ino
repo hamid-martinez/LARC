@@ -101,6 +101,8 @@ void setup()
 
 void loop() 
 {
+  k = false;
+
   // Initial stepper configuration
   digitalWrite(stepper_enable, HIGH);
 
@@ -129,16 +131,54 @@ void loop()
   else if (split_1 == "F")
   {
     user_input = split_2.toInt();
+    //bool k1 = true, k2 = true, k3 = true, k4 = true;
+    counts = 0;
     k = true;
-    counts = 0; 
+    //k1==true && k2==true && k3==true && k4==true
+
+    Serial.println(" Before: ");
+    Serial.print("prevT: ");
+    Serial.print(prevT_M1);
+    Serial.print(" , ");
+    Serial.print(prevT_M2);
+    Serial.print(" , ");
+    Serial.print(prevT_M3);
+    Serial.print(" , ");
+    Serial.println(prevT_M4);
+    Serial.print("eprev: ");
+    Serial.print(eprev_M1);
+    Serial.print(" , ");
+    Serial.print(eprev_M2);
+    Serial.print(" , ");
+    Serial.print(eprev_M3);
+    Serial.print(" , ");
+    Serial.println(eprev_M4);
+    Serial.print("eintegral: ");
+    Serial.print(eintegral_M1);
+    Serial.print(" , ");
+    Serial.print(eintegral_M2);
+    Serial.print(" , ");
+    Serial.print(eintegral_M3);
+    Serial.print(" , ");
+    Serial.println(eintegral_M4);
+    Serial.print("All posi: ");
+
+    for (int i = 0; i < 4; i++)
+    {
+      Serial.print(posi[i]);
+      Serial.print(" , ");
+    }
+    
+    Serial.println(" ");
+
+    delay(1000);
    
     while (k==true)
     {
-      for (int i = 0; i < motor_number; i++)
-      {
-        PID_control(user_input, KP[i], KI[i], KD[i], ENABLE[i], IN1[i], IN2[i], i);
-      }
-      
+      PID_control(user_input, KP[0], KI[0], KD[0], ENABLE[0], IN1[0], IN2[0], 0);
+      PID_control(user_input, KP[1], KI[1], KD[1], ENABLE[1], IN1[1], IN2[1], 1);
+      PID_control(user_input, KP[2], KI[2], KD[2], ENABLE[2], IN1[2], IN2[2], 2);
+      PID_control(user_input, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3], 3);
     }
   }
 
@@ -318,11 +358,51 @@ void loop()
     //k1 = true;
     k = true;
     counts = 0; 
+
+    Serial.println(" Before: ");
+    Serial.print("prevT_M1: ");
+    Serial.print(prevT_M1);
+    Serial.print(" , ");
+    Serial.print("eprev_M1: ");
+    Serial.print(eprev_M1);
+    Serial.print(" , ");
+    Serial.print("eintegral_M1: ");
+    Serial.print(eintegral_M1);
+    Serial.print(" , ");
+    Serial.print("All posi: ");
+
+    for (int i = 0; i < 4; i++)
+    {
+      Serial.print(posi[0]);
+      Serial.print(" , ");
+    }
+    
+    Serial.println(" ");
    
     while (k==true)
     {
       PID_M1(user_input, KP[0], KI[0], KD[0], ENABLE[0], IN1[0], IN2[0]);
     }
+
+    Serial.println(" After: ");
+    Serial.print("prevT_M1: ");
+    Serial.print(prevT_M1);
+    Serial.print(" , ");
+    Serial.print("eprev_M1: ");
+    Serial.print(eprev_M1);
+    Serial.print(" , ");
+    Serial.print("eintegral_M1: ");
+    Serial.print(eintegral_M1);
+    Serial.print(" , ");
+    Serial.print("All posi: ");
+
+    for (int i = 0; i < 4; i++)
+    {
+      Serial.print(posi[1]);
+      Serial.print(" , ");
+    }
+    
+    Serial.println(" ");
   }
 
   else if (split_1 == "T2")
@@ -479,6 +559,7 @@ void PID_M1(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
 
   long currT = micros();
   float deltaT = ((float) (currT - prevT_M1))/( 1.0e6 );
+
   prevT_M1 = currT;
 
   int pos = 0;
@@ -532,6 +613,10 @@ void PID_M1(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     readString = "";
     //k1 = false;
     k = false;
+
+    prevT_M1 = 0;
+    eprev_M1 = 0;
+    eintegral_M1 = 0;
   }
 
 }
@@ -599,6 +684,10 @@ void PID_M2(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     readString = "";
     //k2 = false;
     k = false;
+
+    prevT_M2 = 0;
+    eprev_M2 = 0;
+    eintegral_M2 = 0;
   }
 
 }
@@ -666,6 +755,9 @@ void PID_M3(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     readString = "";
     //k3 = false;
     k = false;
+    prevT_M3 = 0;
+    eprev_M3 = 0;
+    eintegral_M3 = 0;
   }
 
 }
@@ -733,6 +825,9 @@ void PID_M4(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     readString = "";
     //k4 = false;
     k = false;
+    prevT_M4 = 0;
+    eprev_M4 = 0;
+    eintegral_M4 = 0;
   }
 
 }
