@@ -6,6 +6,7 @@ sheet = "Inventory"
 work_sheet = "Products"
 sensor_state_sheet = [2,4]
 analysis_sheet = [2,6]
+done_analyzing_sheet = [2,7]
 
 # Sheet communication
 sheet = Sheet_Comm(sheet, work_sheet)
@@ -16,6 +17,8 @@ arduino = Rpi_Comm("/dev/ttyUSB0", 9600, 1)
 while True:
 
     sensor_state = sheet.get_cell_value(sensor_state_sheet[0], sensor_state_sheet[1])
+    sleep(1)
+    done_analyzing = sheet.get_cell_value(done_analyzing_sheet[0], done_analyzing_sheet[1])
     sleep(1)
 
     if sensor_state == "1":
@@ -35,7 +38,7 @@ while True:
 
         #### Move left towards conveyor ####
         print("Moving left towards conveyor\n")
-        arduino.send_command("M,L#400")
+        arduino.send_command("M,L#500")
         sleep(2)
         arduino.read_command()
         sleep(2)
@@ -60,7 +63,7 @@ while True:
 
         #### Move forward for camera ####
         print("Moving right to camera\n")
-        arduino.send_command("M,R#400")
+        arduino.send_command("M,R#700")
         sleep(2)
         arduino.read_command()
         sleep(2)
@@ -71,11 +74,30 @@ while True:
         arduino.read_command()
         sleep(2)
 
+        # Lower conveyor to appropiate distance for camera
+        print("Moving conveyor to container\n")
+        arduino.send_command("PD,13")
+        arduino.read_command()
+        sleep(1)
+
         # Update sheet value to begin camera analysis for qr code
         sheet.update_cell_value(sensor_state_sheet[0], sensor_state_sheet[1], "0")
         sleep(0.5)
         sheet.update_cell_value(analysis_sheet[0], analysis_sheet[1], "1")
         sleep(0.5)
+
+    elif (done_analyzing == "1"):
+        
+        # Read which band it should move to
+        row_to_insert = len(sheet.get_all_data()) + 2
+        band = sheet.get_cell_value(sensor_state_sheet[0], sensor_state_sheet[1])
+        sleep(1)
+
+        ### Move to corresponding conveyor ###
+
+        sheet.update_cell_value(done_analyzing_sheet[0], done_analyzing_sheet[1], "0")
+        sleep(0.5)
+
 
     else:
 

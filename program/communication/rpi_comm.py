@@ -31,14 +31,15 @@ class Rpi_Comm():
         self.cmd_to_analyze = self.cmd_to_send.split(",") # split the command at the comma, returns a list
 
         if self.cmd_to_analyze[0] in self.special_cmd_list:
-            self.run_time = self.cmd_to_analyze[1].split("#")
+            self.cmd_to_analyze = self.cmd_to_analyze[1].split("#")
+        
 
         # If the first part of the command is not in the list return error
-        if self.cmd_to_analyze[0] not in self.cmd_list:
+        elif self.cmd_to_analyze[0] not in self.cmd_list and self.cmd_to_analyze[0] not in self.special_cmd_list:
             return "Error: Command not recognized"
-
+        
         # If the second part of the command is not a numeric value return error, M,F#1200
-        elif self.cmd_to_analyze[1].isnumeric() != True or self.run_time[1].isnumeric() != True:
+        elif self.cmd_to_analyze[1].isnumeric() != True:
             return "Error: Incorrect numeric value"
 
         # If all checks are passed, then write to the serial port the given command

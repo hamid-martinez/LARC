@@ -594,6 +594,8 @@ void loop()
       split_1 = "";
       ready_notification();
     }
+
+    ready_notification();
     
   }
   
