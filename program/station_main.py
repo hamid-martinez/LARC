@@ -8,6 +8,7 @@ work_sheet = "Products"
 sensor_state_sheet = [2,4] # Location at google sheet [row,column]
 incoming_sheet = [2,5]
 analysis_sheet = [2,6]
+done_analyzing_sheet = [2,7]
 product_id = []
 
 # Sheet communication
@@ -32,6 +33,8 @@ GPIO.setup(sensor, GPIO.IN)
 motor = GPIO.PWM(pwm,100)
 
 while True:
+    
+    print("Waiting...")
 
     incoming = sheet.get_cell_value(incoming_sheet[0], incoming_sheet[1])
     sleep(1)
@@ -67,7 +70,7 @@ while True:
 
         if extracted_qr != "":
             data = extracted_qr.split(",")
-            row_to_insert = len(sheet.get_all_data()) + 1
+            row_to_insert = len(sheet.get_all_data()) + 2
             sleep(0.5)
             sheet.insert_single_row(data,row_to_insert)
             sleep(0.5)
@@ -77,3 +80,6 @@ while True:
 
         sheet.update_cell_value(analysis_sheet[0], analysis_sheet[1], "0")
         sleep(0.5)
+        sheet.update_cell_value(done_analyzing_sheet[0], done_analyzing_sheet[1], "1")
+        sleep(0.5)
+        analysis = ""
