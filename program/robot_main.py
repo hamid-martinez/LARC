@@ -24,7 +24,7 @@ while True:
     if sensor_state == "1":
 
         # Zero the platform 
-        print("Moving conveyor to zero\n")
+        print("Moving platform to zero\n")
         arduino.send_command("PZ,0")
         arduino.read_command()
         sleep(2)
@@ -43,8 +43,8 @@ while True:
         arduino.read_command()
         sleep(2)
 
-        # Lower conveyor to appropiate distance
-        print("Moving conveyor to container\n")
+        # Lower platform to appropiate distance
+        print("Lowering platform to conveyor\n")
         arduino.send_command("PD,13")
         arduino.read_command()
         sleep(1)
@@ -75,7 +75,7 @@ while True:
         sleep(2)
 
         # Lower conveyor to appropiate distance for camera
-        print("Moving conveyor to container\n")
+        print("Moving platform towards camera\n")
         arduino.send_command("PD,13")
         arduino.read_command()
         sleep(1)
@@ -87,17 +87,69 @@ while True:
         sleep(0.5)
 
     elif (done_analyzing == "1"):
-        
-        # Read which band it should move to
-        row_to_insert = len(sheet.get_all_data()) + 2
-        band = sheet.get_cell_value(sensor_state_sheet[0], sensor_state_sheet[1])
+
+        #### Move forward to turn ####
+        print("Moving forward to turn\n")
+        arduino.send_command("M,F#1000")
+        sleep(2)
+        arduino.read_command()
+        sleep(2)
+
+        #### Turn towards conveyors 1 and 2 ####
+        print("Rotating to face conveyors\n")
+        arduino.send_command("M,CW#2500")
+        sleep(2)
+        arduino.read_command()
+        sleep(2)
+
+        # Moving platform to appropiate distance
+        print("Moving platform to conveyor distance\n")
+        arduino.send_command("PU,13")
+        arduino.read_command()
         sleep(1)
 
-        ### Move to corresponding conveyor ###
+        #### Move left towards conveyor ####
+        print("Moving left towards conveyors\n")
+        arduino.send_command("M,L#1500")
+        sleep(2)
+        arduino.read_command()
+        sleep(2)
+        
+        # Read which band it should move to
+        row_to_read = len(sheet.get_all_data()) + 1
+        sleep(0.5)
+        col_to_read = 3
+        conveyor = sheet.get_cell_value(row_to_read,col_to_read)
+        sleep(0.5)
+
+        if conveyor == "1":
+
+            ### MOVE TO CONVEYOR 1 ###
+            print("Putting in conveyor 1\n")
+
+            # Grab with electromagnets
+            print("Deactivating electromagnets\n")
+            arduino.send_command("EM,0")
+            arduino.read_command()
+            sleep(1)
+
+        elif conveyor == "2":
+
+            ### MOVE TO CONVEYOR 2 ###
+            print("Moving to conveyor 2\n")
+            arduino.send_command("M,F#1500")
+            sleep(2)
+            arduino.read_command()
+            sleep(2)
+
+            # Grab with electromagnets
+            print("Deactivating electromagnets\n")
+            arduino.send_command("EM,0")
+            arduino.read_command()
+            sleep(1)
 
         sheet.update_cell_value(done_analyzing_sheet[0], done_analyzing_sheet[1], "0")
         sleep(0.5)
-
 
     else:
 
