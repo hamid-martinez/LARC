@@ -446,135 +446,152 @@ void loop()
 
   else if (split_1 == "M")
   {
-    String type = split_2;
+    // M,F#5
+    index1 = split_2.indexOf("#");
+    index2 = split_2.indexOf("#", index1 + 1);
 
-    if (type == "F")
+    split_2_1 = split_2.substring(0, index1);
+    split_2_2 = split_2.substring(index1 + 1, index2);
+
+    if (split_2_1 == "F")
     {
       int direction = 1;
       int pwm_value = 255;
       int stop_pwm = 0;
+      int stop_time = split_2_2.toInt();
 
       for (int i = 0; i < 4; i++)
       {
         setMotor(direction, pwm_value, ENABLE[i], IN1[i], IN2[i]);
       }
 
-      delay(500);
+      delay(stop_time);
 
       for (int i = 0; i < 4; i++)
       {
         setMotor(direction, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
       }
 
+      ready_notification();
       split_1 = "";
     }
 
-    else if (type == "B")
+    else if (split_2_1 == "B")
     {
       int direction = -1;
       int pwm_value = 255;
       int stop_pwm = 0;
+      int stop_time = split_2_2.toInt();
 
       for (int i = 0; i < 4; i++)
       {
         setMotor(direction, pwm_value, ENABLE[i], IN1[i], IN2[i]);
       }
 
-      delay(500);
+      delay(stop_time);
 
       for (int i = 0; i < 4; i++)
       {
         setMotor(direction, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
       }
 
+      ready_notification();
       split_1 = "";
     }
 
-    else if (type == "R")
+    else if (split_2_1 == "R")
     {
       int direction_1 = 1;
       int direction_2 = -1;
       int pwm_value = 255;
       int stop_pwm = 0;
+      int stop_time = split_2_2.toInt();
 
       setMotor(direction_1, pwm_value, ENABLE[0], IN1[0], IN2[0]);
       setMotor(direction_2, pwm_value, ENABLE[1], IN1[1], IN2[1]);
       setMotor(direction_1, pwm_value, ENABLE[2], IN1[2], IN2[2]);
       setMotor(direction_2, pwm_value, ENABLE[3], IN1[3], IN2[3]);
 
-      delay(500);
+      delay(stop_time);
 
       for (int i = 0; i < 4; i++)
       {
         setMotor(direction_1, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
       }
 
+      ready_notification();
       split_1 = "";
     }
 
-    else if (type == "L")
+    else if (split_2_1 == "L")
     {
       int direction_1 = 1;
       int direction_2 = -1;
       int pwm_value = 255;
       int stop_pwm = 0;
+      int stop_time = split_2_2.toInt();
 
       setMotor(direction_2, pwm_value, ENABLE[0], IN1[0], IN2[0]);
       setMotor(direction_1, pwm_value, ENABLE[1], IN1[1], IN2[1]);
       setMotor(direction_2, pwm_value, ENABLE[2], IN1[2], IN2[2]);
       setMotor(direction_1, pwm_value, ENABLE[3], IN1[3], IN2[3]);
 
-      delay(500);
+      delay(stop_time);
 
       for (int i = 0; i < 4; i++)
       {
         setMotor(direction_1, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
       }
 
+      ready_notification();
       split_1 = "";
     }
 
-    else if (type == "CW")
+    else if (split_2_1 == "CW")
     {
       int direction_1 = 1;
       int direction_2 = -1;
       int pwm_value = 255;
       int stop_pwm = 0;
+      int stop_time = split_2_2.toInt();
 
       setMotor(direction_2, pwm_value, ENABLE[0], IN1[0], IN2[0]);
       setMotor(direction_1, pwm_value, ENABLE[1], IN1[1], IN2[1]);
       setMotor(direction_1, pwm_value, ENABLE[2], IN1[2], IN2[2]);
       setMotor(direction_2, pwm_value, ENABLE[3], IN1[3], IN2[3]);
 
-      delay(500);
+      delay(stop_time);
 
       for (int i = 0; i < 4; i++)
       {
         setMotor(direction_1, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
       }
 
+      ready_notification();
       split_1 = "";
     }
 
-    else if (type == "CCW")
+    else if (split_2_1 == "CCW")
     {
       int direction_1 = 1;
       int direction_2 = -1;
       int pwm_value = 255;
       int stop_pwm = 0;
+      int stop_time = split_2_2.toInt();
 
       setMotor(direction_1, pwm_value, ENABLE[0], IN1[0], IN2[0]);
       setMotor(direction_2, pwm_value, ENABLE[1], IN1[1], IN2[1]);
       setMotor(direction_2, pwm_value, ENABLE[2], IN1[2], IN2[2]);
       setMotor(direction_1, pwm_value, ENABLE[3], IN1[3], IN2[3]);
 
-      delay(500);
+      delay(stop_time);
 
       for (int i = 0; i < 4; i++)
       {
         setMotor(direction_1, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
       }
 
+      ready_notification();
       split_1 = "";
     }
     
