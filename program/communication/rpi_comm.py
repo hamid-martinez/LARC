@@ -21,6 +21,7 @@ class Rpi_Comm():
 
         # The list of available comnmands to send to control the robot
         self.cmd_list = ["F","B","R","L","TR","TL","PU","PD","PZ","EM"]
+        self.special_cmd_list = ["PID","T1","T2","T3","T4","M"]
 
     def send_command(self, cmd):
 
@@ -29,12 +30,15 @@ class Rpi_Comm():
         self.cmd_to_send = self.cmd.upper() # convert entered command to all caps
         self.cmd_to_analyze = self.cmd_to_send.split(",") # split the command at the comma, returns a list
 
+        if self.cmd_to_analyze[0] in self.special_cmd_list:
+            self.run_time = self.cmd_to_analyze[1].split("#")
+
         # If the first part of the command is not in the list return error
         if self.cmd_to_analyze[0] not in self.cmd_list:
             return "Error: Command not recognized"
 
-        # If the second part of the command is not a numeric value return error
-        elif self.cmd_to_analyze[1].isnumeric() != True:
+        # If the second part of the command is not a numeric value return error, M,F#1200
+        elif self.cmd_to_analyze[1].isnumeric() != True or self.run_time[1].isnumeric() != True:
             return "Error: Incorrect numeric value"
 
         # If all checks are passed, then write to the serial port the given command
