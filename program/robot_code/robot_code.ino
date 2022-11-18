@@ -443,6 +443,142 @@ void loop()
       PID_M4(user_input, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3]);
     }
   }
+
+  else if (split_1 == "M")
+  {
+    String type = split_2;
+
+    if (type == "F")
+    {
+      int direction = 1;
+      int pwm_value = 255;
+      int stop_pwm = 0;
+
+      for (int i = 0; i < 4; i++)
+      {
+        setMotor(direction, pwm_value, ENABLE[i], IN1[i], IN2[i]);
+      }
+
+      delay(500);
+
+      for (int i = 0; i < 4; i++)
+      {
+        setMotor(direction, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
+      }
+
+      split_1 = "";
+    }
+
+    else if (type == "B")
+    {
+      int direction = -1;
+      int pwm_value = 255;
+      int stop_pwm = 0;
+
+      for (int i = 0; i < 4; i++)
+      {
+        setMotor(direction, pwm_value, ENABLE[i], IN1[i], IN2[i]);
+      }
+
+      delay(500);
+
+      for (int i = 0; i < 4; i++)
+      {
+        setMotor(direction, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
+      }
+
+      split_1 = "";
+    }
+
+    else if (type == "R")
+    {
+      int direction_1 = 1;
+      int direction_2 = -1;
+      int pwm_value = 255;
+      int stop_pwm = 0;
+
+      setMotor(direction_1, pwm_value, ENABLE[0], IN1[0], IN2[0]);
+      setMotor(direction_2, pwm_value, ENABLE[1], IN1[1], IN2[1]);
+      setMotor(direction_1, pwm_value, ENABLE[2], IN1[2], IN2[2]);
+      setMotor(direction_2, pwm_value, ENABLE[3], IN1[3], IN2[3]);
+
+      delay(500);
+
+      for (int i = 0; i < 4; i++)
+      {
+        setMotor(direction_1, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
+      }
+
+      split_1 = "";
+    }
+
+    else if (type == "L")
+    {
+      int direction_1 = 1;
+      int direction_2 = -1;
+      int pwm_value = 255;
+      int stop_pwm = 0;
+
+      setMotor(direction_2, pwm_value, ENABLE[0], IN1[0], IN2[0]);
+      setMotor(direction_1, pwm_value, ENABLE[1], IN1[1], IN2[1]);
+      setMotor(direction_2, pwm_value, ENABLE[2], IN1[2], IN2[2]);
+      setMotor(direction_1, pwm_value, ENABLE[3], IN1[3], IN2[3]);
+
+      delay(500);
+
+      for (int i = 0; i < 4; i++)
+      {
+        setMotor(direction_1, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
+      }
+
+      split_1 = "";
+    }
+
+    else if (type == "CW")
+    {
+      int direction_1 = 1;
+      int direction_2 = -1;
+      int pwm_value = 255;
+      int stop_pwm = 0;
+
+      setMotor(direction_2, pwm_value, ENABLE[0], IN1[0], IN2[0]);
+      setMotor(direction_1, pwm_value, ENABLE[1], IN1[1], IN2[1]);
+      setMotor(direction_1, pwm_value, ENABLE[2], IN1[2], IN2[2]);
+      setMotor(direction_2, pwm_value, ENABLE[3], IN1[3], IN2[3]);
+
+      delay(500);
+
+      for (int i = 0; i < 4; i++)
+      {
+        setMotor(direction_1, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
+      }
+
+      split_1 = "";
+    }
+
+    else if (type == "CCW")
+    {
+      int direction_1 = 1;
+      int direction_2 = -1;
+      int pwm_value = 255;
+      int stop_pwm = 0;
+
+      setMotor(direction_1, pwm_value, ENABLE[0], IN1[0], IN2[0]);
+      setMotor(direction_2, pwm_value, ENABLE[1], IN1[1], IN2[1]);
+      setMotor(direction_2, pwm_value, ENABLE[2], IN1[2], IN2[2]);
+      setMotor(direction_1, pwm_value, ENABLE[3], IN1[3], IN2[3]);
+
+      delay(500);
+
+      for (int i = 0; i < 4; i++)
+      {
+        setMotor(direction_1, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
+      }
+
+      split_1 = "";
+    }
+    
+  }
   
 }
 
