@@ -20,15 +20,25 @@ while True:
 
     if sensor_state == "1":
 
-        #### Move towards conveyor ####
-        print("Moving towards conveyor\n")
-        sleep(2)
-
         # Zero the platform 
         print("Moving conveyor to zero\n")
         arduino.send_command("PZ,0")
         arduino.read_command()
-        sleep(1)
+        sleep(2)
+
+        #### Move straight towards conveyor ####
+        print("Moving straight towards conveyor\n")
+        arduino.send_command("M,F#1300")
+        sleep(2)
+        arduino.read_command()
+        sleep(2)
+
+        #### Move left towards conveyor ####
+        print("Moving left towards conveyor\n")
+        arduino.send_command("M,L#400")
+        sleep(2)
+        arduino.read_command()
+        sleep(2)
 
         # Lower conveyor to appropiate distance
         print("Moving conveyor to container\n")
@@ -44,12 +54,21 @@ while True:
 
         # Lift up for analysis
         print("Lifting container\n")
-        arduino.send_command("PZ,0")
+        arduino.send_command("PU,7")
         arduino.read_command()
         sleep(1)
 
         #### Move forward for camera ####
-        print("Moving to camera\n")
+        print("Moving right to camera\n")
+        arduino.send_command("M,R#400")
+        sleep(2)
+        arduino.read_command()
+        sleep(2)
+
+        print("Moving forward to camera\n")
+        arduino.send_command("M,F#200")
+        sleep(2)
+        arduino.read_command()
         sleep(2)
 
         # Update sheet value to begin camera analysis for qr code

@@ -472,8 +472,8 @@ void loop()
         setMotor(direction, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
       }
 
-      ready_notification();
       split_1 = "";
+      ready_notification();
     }
 
     else if (split_2_1 == "B")
@@ -495,8 +495,8 @@ void loop()
         setMotor(direction, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
       }
 
-      ready_notification();
       split_1 = "";
+      ready_notification();
     }
 
     else if (split_2_1 == "R")
@@ -519,8 +519,8 @@ void loop()
         setMotor(direction_1, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
       }
 
-      ready_notification();
       split_1 = "";
+      ready_notification();
     }
 
     else if (split_2_1 == "L")
@@ -543,8 +543,8 @@ void loop()
         setMotor(direction_1, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
       }
 
-      ready_notification();
       split_1 = "";
+      ready_notification();
     }
 
     else if (split_2_1 == "CW")
@@ -567,8 +567,8 @@ void loop()
         setMotor(direction_1, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
       }
 
-      ready_notification();
       split_1 = "";
+      ready_notification();
     }
 
     else if (split_2_1 == "CCW")
@@ -591,8 +591,8 @@ void loop()
         setMotor(direction_1, stop_pwm, ENABLE[i], IN1[i], IN2[i]);
       }
 
-      ready_notification();
       split_1 = "";
+      ready_notification();
     }
     
   }
