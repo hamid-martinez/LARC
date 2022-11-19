@@ -8,9 +8,11 @@ class SimplePID
 {
   private:
     float kp, kd, ki, umax; // Parameters
-    float eprev, eintegral; // Storage
+    float eintegral; // Storage
 
   public:
+    float eprev;
+
   // Constructor
   SimplePID() : kp(1), ki(0), kd(0), umax(255), eprev(0.0), eintegral(0.0){}
 
@@ -55,6 +57,7 @@ class SimplePID
     eprev = e;
 
     return eprev;
+
   }
   
 };
@@ -83,7 +86,8 @@ bool start = false;
 // PID class instances
 SimplePID pid[NMOTORS];
 
-void setup() {
+void setup() 
+{
   Serial.begin(9600);
 
   for(int k = 0; k < NMOTORS; k++)
@@ -103,7 +107,6 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(enca[2]), readEncoder<2>, RISING);
   attachInterrupt(digitalPinToInterrupt(enca[3]), readEncoder<3>, RISING);
   
-  Serial.println("target pos");
 }
 
 void loop() 
@@ -118,11 +121,13 @@ void loop()
     while(start == true)
     {
       // set target position
+      int user_input = split_2.toInt();
+      user_input = map(user_input, 0, 360, 0, 495);
       int target[NMOTORS];
-      target[0] = 495;
-      target[1] = 495;
-      target[2] = 495;
-      target[3] = 495;
+      for (int i = 0; i < NMOTORS; i++)
+      {
+        target[i] = user_input;
+      }
 
       // time difference
       long currT = micros();
@@ -147,7 +152,9 @@ void loop()
         // signal the motor
         setMotor(dir,pwr,pwm[k],in1[k],in2[k]);
 
-        if ( abs(e) < 10)
+        Serial.println(e);
+
+        if ( abs(e) < 5)
         { 
           for (int i = 0; i < 4; i++)
           {
@@ -156,6 +163,14 @@ void loop()
             analogWrite(7, 0);
             analogWrite(45, 0);
           }
+
+          noInterrupts(); // disable interrupts temporarily while reading
+          for(int k = 0; k < NMOTORS; k++)
+          {
+            posi[k] = 0;
+          }
+          interrupts();
+
           start = false;
         }
       }
