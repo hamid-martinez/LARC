@@ -1,4 +1,3 @@
-#include <util/atomic.h>
 #define motor_number 4
 
 // Motor driver and encoder pin definitions as an array
@@ -131,13 +130,20 @@ void loop()
       delayMicroseconds(1000);
     }
 
-    ready_notification();
+    split_1 = "";
+    split_2 = "";
+    readString = "";
   }
 
   else if (split_1 == "F")
   {
     user_input = split_2.toInt();
 
+    for (int i = 0; i < motor_number; i++)
+    {
+      posi[i] = 0;
+    }
+    
     k1 = true, k2 = true, k3 = true, k4 = true;
     ignore_M1 = false, ignore_M2 = false, ignore_M3 = false, ignore_M4 = false;
    
@@ -165,6 +171,11 @@ void loop()
   else if (split_1 == "B")
   {
     user_input = split_2.toInt() * -1;
+
+    for (int i = 0; i < motor_number; i++)
+    {
+      posi[i] = 0;
+    }
 
     k1 = true, k2 = true, k3 = true, k4 = true;
     ignore_M1 = false, ignore_M2 = false, ignore_M3 = false, ignore_M4 = false;
@@ -195,6 +206,11 @@ void loop()
     user_input = split_2.toInt();
     user_input2 = split_2.toInt() * -1;
 
+    for (int i = 0; i < motor_number; i++)
+    {
+      posi[i] = 0;
+    }
+
     k1 = true, k2 = true, k3 = true, k4 = true;
     ignore_M1 = false, ignore_M2 = false, ignore_M3 = false, ignore_M4 = false;
    
@@ -223,6 +239,11 @@ void loop()
   {
     user_input = split_2.toInt();
     user_input2 = split_2.toInt() * -1;
+
+    for (int i = 0; i < motor_number; i++)
+    {
+      posi[i] = 0;
+    }
     
     k1 = true, k2 = true, k3 = true, k4 = true;
     ignore_M1 = false, ignore_M2 = false, ignore_M3 = false, ignore_M4 = false;
@@ -235,7 +256,7 @@ void loop()
       }
       if (ignore_M2 == false)
       {
-        PID_M2(user_input2, KP[1], KI[1], KD[1], ENABLE[1], IN1[1], IN2[1]);
+        PID_M2(user_input, KP[1], KI[1], KD[1], ENABLE[1], IN1[1], IN2[1]);
       }
       if (ignore_M3 == false)
       {
@@ -243,7 +264,7 @@ void loop()
       }
       if (ignore_M4 == false)
       {
-        PID_M4(user_input2, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3]);
+        PID_M4(user_input, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3]);
       }
     }
   }
@@ -252,6 +273,11 @@ void loop()
   {
     user_input = split_2.toInt();
     user_input2 = split_2.toInt() * -1;
+
+    for (int i = 0; i < motor_number; i++)
+    {
+      posi[i] = 0;
+    }
 
     k1 = true, k2 = true, k3 = true, k4 = true;
     ignore_M1 = false, ignore_M2 = false, ignore_M3 = false, ignore_M4 = false;
@@ -281,6 +307,11 @@ void loop()
   {
     user_input = split_2.toInt();
     user_input2 = split_2.toInt() * -1;
+
+    for (int i = 0; i < motor_number; i++)
+    {
+      posi[i] = 0;
+    }
     
     k1 = true, k2 = true, k3 = true, k4 = true;
     ignore_M1 = false, ignore_M2 = false, ignore_M3 = false, ignore_M4 = false;
@@ -319,9 +350,10 @@ void loop()
     }
 
     digitalWrite(stepper_enable, HIGH);
+
     split_1 = "";
     split_2 = "";
-    ready_notification();
+    readString = "";
   }
 
   else if (split_1 == "PD")
@@ -337,9 +369,10 @@ void loop()
     }
 
     digitalWrite(stepper_enable, HIGH);
+
     split_1 = "";
     split_2 = "";
-    ready_notification();
+    readString = "";
   }
 
   else if (split_1 == "EM")
@@ -356,7 +389,9 @@ void loop()
       digitalWrite(magnets, HIGH);
     }
 
-    ready_notification();
+    split_1 = "";
+    split_2 = "";
+    readString = "";
   }
 
   else if (split_1 == "T1")
@@ -558,8 +593,14 @@ void loop()
       ready_notification();
     }
 
+    split_1 = "";
+    split_2 = "";
+    readString = "";
+  }
+
+  else if (split_1 == "" && split_2 == "" && readString == "")
+  {
     ready_notification();
-    
   }
   
 }
@@ -621,10 +662,11 @@ void PID_M1(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
 
     int pos = 0;
 
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) 
-    {
-      pos = posi[0];
-    }
+    noInterrupts();
+
+    pos = posi[0];
+
+    interrupts(); 
 
     // error
     int e = pos - target;
@@ -703,10 +745,11 @@ void PID_M2(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
 
     int pos = 0;
 
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) 
-    {
-      pos = posi[1];
-    }
+    noInterrupts();
+
+    pos = posi[1];
+    
+    interrupts(); 
 
     // error
     int e = pos - target;
@@ -784,11 +827,11 @@ void PID_M3(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
 
     int pos = 0;
 
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) 
-    {
-      pos = posi[2];
-    }
+    noInterrupts();
 
+    pos = posi[2];
+    
+    interrupts(); 
     // error
     int e = pos - target;
 
@@ -864,10 +907,11 @@ void PID_M4(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
 
     int pos = 0;
 
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) 
-    {
-      pos = posi[3];
-    }
+    noInterrupts();
+
+    pos = posi[3];
+    
+    interrupts(); 
 
     // error
     int e = pos - target;
@@ -971,5 +1015,3 @@ void ready_notification()
   Serial.println("Ready");
   delay(1500);
 }
-
-
