@@ -15,7 +15,7 @@ product_id = []
 sheet = Sheet_Comm(sheet, work_sheet)
 
 # Qr code scanner directory
-qr = qr_code_scanner("/home/pi/Desktop/LARC/LARC/program/qr_scanner/qr_code.png")
+qr = qr_code_scanner("/home/pi/Desktop/git-larc/LARC/program/qr_scanner/qr_code.png")
 
 enable = 11
 dir = 16

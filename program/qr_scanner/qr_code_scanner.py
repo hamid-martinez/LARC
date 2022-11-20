@@ -3,7 +3,7 @@ from picamera import PiCamera
 from time import sleep
 
 # Based on https://practicaldatascience.co.uk/data-science/how-to-read-qr-codes-in-python-using-opencv
-# Suggested location for qr_code: "/home/pi/Desktop/LARC/LARC/program/qr_scanner/qr_code.png"
+# Suggested location for qr_code: "/home/pi/Desktop/git-larc/LARC/program/qr_scanner/qr_code.png"
 
 class qr_code_scanner():
 
@@ -32,6 +32,6 @@ class qr_code_scanner():
             return ""
 
 # TEST
-""" qr = qr_code_scanner("/home/pi/Desktop/LARC/LARC/program/qr_scanner/qr_code.png")
+""" qr = qr_code_scanner("/home/pi/Desktop/git-larc/LARC/program/qr_scanner/qr_code.png")
 qr.take_picture()
 print(qr.read_qr_code()) """
