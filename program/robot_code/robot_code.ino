@@ -46,6 +46,8 @@ bool ignore_M4 = false;
 
 bool k = false, k1 = false, k2 = false, k3 = false, k4 = false;
 
+int counts = 0;
+
 long prevT = 0;
 volatile int posi[] = {0, 0, 0, 0}; // add more for more motors
 float eprev[] = {0,0,0,0};
@@ -201,7 +203,7 @@ void loop()
     }
   }
   
-  else if (split_1 == "R")
+  else if (split_1 == "R") // 1 and 2 fail
   {
     user_input = split_2.toInt();
     user_input2 = split_2.toInt() * -1;
@@ -233,9 +235,17 @@ void loop()
         PID_M4(user_input2, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3]);
       }
     }
+    Serial.print("Final Errors: ");
+    Serial.print(eprev_M1);
+    Serial.print(", ");
+    Serial.print(eprev_M2);
+    Serial.print(", ");
+    Serial.print(eprev_M3);
+    Serial.print(", ");
+    Serial.println(eprev_M4);
   }
   
-  else if (split_1 == "L")
+  else if (split_1 == "L") // 3 and 4 fail
   {
     user_input = split_2.toInt();
     user_input2 = split_2.toInt() * -1;
@@ -267,6 +277,14 @@ void loop()
         PID_M4(user_input, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3]);
       }
     }
+    Serial.print("\nFinal Errors: ");
+    Serial.print(eprev_M1);
+    Serial.print(", ");
+    Serial.print(eprev_M2);
+    Serial.print(", ");
+    Serial.print(eprev_M3);
+    Serial.print(", ");
+    Serial.println(eprev_M4);
   }
 
   else if (split_1 == "TR")
@@ -701,7 +719,10 @@ void PID_M1(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // store previous error
     eprev_M1 = e;
 
-    if (abs(e) < 5)
+    Serial.print("M1: ");
+    Serial.println(eprev_M1);
+
+    if (abs(e) <= 3)
     {  
       analogWrite(ENABLE[0], 0);
       posi[0] = 0;
@@ -784,7 +805,10 @@ void PID_M2(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // store previous error
     eprev_M2 = e;
 
-    if (abs(e) < 5)
+    Serial.print("M2: ");
+    Serial.println(eprev_M2);
+
+    if (abs(e) <= 3)
     {  
       analogWrite(ENABLE[1], 0);
       posi[1] = 0;
@@ -865,7 +889,10 @@ void PID_M3(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // store previous error
     eprev_M3 = e;
 
-    if (abs(e) < 5)
+    Serial.print("M3: ");
+    Serial.println(eprev_M3);
+
+    if (abs(e) <= 3)
     {  
       analogWrite(ENABLE[2], 0);
       posi[2] = 0;
@@ -946,7 +973,10 @@ void PID_M4(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // store previous error
     eprev_M4 = e;
 
-    if ( abs(e) < 5)
+    Serial.print("M4: ");
+    Serial.println(eprev_M4);
+
+    if ( abs(e) <= 3)
     {  
       analogWrite(ENABLE[3], 0);
       posi[3] = 0;
