@@ -31,21 +31,14 @@ while True:
 
         #### Move straight towards conveyor ####
         print("Moving straight towards conveyor\n")
-        arduino.send_command("M,F#1300")
-        sleep(2)
-        arduino.read_command()
-        sleep(2)
-
-        #### Move left towards conveyor ####
-        print("Moving left towards conveyor\n")
-        arduino.send_command("M,L#500")
+        arduino.send_command("F,1215")
         sleep(2)
         arduino.read_command()
         sleep(2)
 
         # Lower platform to appropiate distance
         print("Lowering platform to conveyor\n")
-        arduino.send_command("PD,13")
+        arduino.send_command("PD,23")
         arduino.read_command()
         sleep(1)
 
@@ -57,29 +50,23 @@ while True:
 
         # Lift up for analysis
         print("Lifting container\n")
-        arduino.send_command("PU,7")
+        arduino.send_command("PU,10")
         arduino.read_command()
         sleep(1)
 
         #### Move forward for camera ####
-        print("Moving right to camera\n")
-        arduino.send_command("M,R#700")
-        sleep(2)
-        arduino.read_command()
-        sleep(2)
-
         print("Moving forward to camera\n")
-        arduino.send_command("M,F#200")
+        arduino.send_command("F,1215")
         sleep(2)
         arduino.read_command()
         sleep(2)
 
-        # Lower conveyor to appropiate distance for camera
-        print("Moving platform towards camera\n")
-        arduino.send_command("PD,13")
+        # Lower platform to appropiate distance
+        print("Lowering platform to camera view\n")
+        arduino.send_command("PD,18")
         arduino.read_command()
         sleep(1)
-
+        
         # Update sheet value to begin camera analysis for qr code
         sheet.update_cell_value(sensor_state_sheet[0], sensor_state_sheet[1], "0")
         sleep(0.5)
@@ -90,21 +77,21 @@ while True:
 
         #### Move forward to turn ####
         print("Moving forward to turn\n")
-        arduino.send_command("M,F#1000")
+        arduino.send_command("F,360")
         sleep(2)
         arduino.read_command()
         sleep(2)
 
         #### Turn towards conveyors 1 and 2 ####
         print("Rotating to face conveyors\n")
-        arduino.send_command("M,CW#2500")
+        arduino.send_command("TR,832") # to turn 180 deg
         sleep(2)
         arduino.read_command()
         sleep(2)
 
         # Moving platform to appropiate distance
         print("Moving platform to conveyor distance\n")
-        arduino.send_command("PU,13")
+        arduino.send_command("PU,18")
         arduino.read_command()
         sleep(1)
 
