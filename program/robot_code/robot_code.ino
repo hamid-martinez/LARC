@@ -154,18 +154,22 @@ void loop()
       if (ignore_M1 == false)
       {
         PID_M1(user_input, KP[0], KI[0], KD[0], ENABLE[0], IN1[0], IN2[0]);
+        delayMicroseconds(500);
       }
       if (ignore_M2 == false)
       {
         PID_M2(user_input, KP[1], KI[1], KD[1], ENABLE[1], IN1[1], IN2[1]);
+        delayMicroseconds(500);
       }
       if (ignore_M3 == false)
       {
         PID_M3(user_input, KP[2], KI[2], KD[2], ENABLE[2], IN1[2], IN2[2]);
+        delayMicroseconds(500);
       }
       if (ignore_M4 == false)
       {
         PID_M4(user_input, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3]);
+        delayMicroseconds(500);
       }
     }
   }
@@ -187,18 +191,22 @@ void loop()
       if (ignore_M1 == false)
       {
         PID_M1(user_input, KP[0], KI[0], KD[0], ENABLE[0], IN1[0], IN2[0]);
+        delayMicroseconds(500);
       }
       if (ignore_M2 == false)
       {
         PID_M2(user_input, KP[1], KI[1], KD[1], ENABLE[1], IN1[1], IN2[1]);
+        delayMicroseconds(500);
       }
       if (ignore_M3 == false)
       {
         PID_M3(user_input, KP[2], KI[2], KD[2], ENABLE[2], IN1[2], IN2[2]);
+        delayMicroseconds(500);
       }
       if (ignore_M4 == false)
       {
         PID_M4(user_input, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3]);
+        delayMicroseconds(500);
       }
     }
   }
@@ -287,7 +295,7 @@ void loop()
     Serial.println(eprev_M4);
   }
 
-  else if (split_1 == "TR")
+  else if (split_1 == "TL")
   {
     user_input = split_2.toInt();
     user_input2 = split_2.toInt() * -1;
@@ -321,7 +329,7 @@ void loop()
     }
   }
 
-  else if (split_1 == "TL")
+  else if (split_1 == "TR")
   {
     user_input = split_2.toInt();
     user_input2 = split_2.toInt() * -1;
@@ -719,8 +727,8 @@ void PID_M1(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // store previous error
     eprev_M1 = e;
 
-    Serial.print("M1: ");
-    Serial.println(eprev_M1);
+    /* Serial.print("M1: ");
+    Serial.println(eprev_M1); */
 
     if (abs(e) <= 3)
     {  
@@ -805,8 +813,8 @@ void PID_M2(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // store previous error
     eprev_M2 = e;
 
-    Serial.print("M2: ");
-    Serial.println(eprev_M2);
+    /* Serial.print("M2: ");
+    Serial.println(eprev_M2); */
 
     if (abs(e) <= 3)
     {  
@@ -889,8 +897,8 @@ void PID_M3(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // store previous error
     eprev_M3 = e;
 
-    Serial.print("M3: ");
-    Serial.println(eprev_M3);
+    /* Serial.print("M3: ");
+    Serial.println(eprev_M3); */
 
     if (abs(e) <= 3)
     {  
@@ -973,8 +981,8 @@ void PID_M4(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // store previous error
     eprev_M4 = e;
 
-    Serial.print("M4: ");
-    Serial.println(eprev_M4);
+    /* Serial.print("M4: ");
+    Serial.println(eprev_M4); */
 
     if ( abs(e) <= 3)
     {  
