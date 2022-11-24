@@ -7,4 +7,4 @@ The main robot design is as follows:
   
 The conveyors were designed as follows:
   
-<p align= "left"> <img src="main_robot_cad.png" alt="drawing" width="600" height="500"/> </p>
+<p align= "left"> <img src="main_conveyor_cad.png" alt="drawing" width="600" height="500"/> </p>
