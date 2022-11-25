@@ -34,3 +34,6 @@
 ## Placement conveyors
 <img src="pictures/placement_conveyors.jpeg" alt="drawing" width="600" height="300"/>
 
+## Complete placement
+<img src="pictures/complete_placement1.jpeg" alt="drawing" width="600" height="300"/> <img src="pictures/complete_placement2.jpeg" alt="drawing" width="300" height="300"/>
+
