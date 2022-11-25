@@ -24,3 +24,6 @@
 
 ## Main robot
 <img src="pictures/main_robot_side1.jpeg" alt="drawing" width="300" height="300"/><img src="pictures/main_robot_side2.jpeg" alt="drawing" width="300" height="300"/>
+
+## Main conveyor
+<img src="pictures/main_conveyor_side1.jpeg" alt="drawing" width="300" height="300"/><img src="pictures/main_conveyor_side2.jpeg" alt="drawing" width="300" height="300"/>
