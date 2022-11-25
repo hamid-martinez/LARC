@@ -1,4 +1,6 @@
 # Electrical
+The mostly electrical materials to build the main orbot and conveyor are in the excel file.
+
 The electrial connections for all components of the main robot are as follow:
 
 <img
