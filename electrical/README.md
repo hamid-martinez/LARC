@@ -9,7 +9,7 @@ The electrial connections for all components of the main robot are as follow:
   title="Optional title"
   style="display: inline-block; margin: 0 auto; max-width: 300px">
   
-<p align="justify">The only missing connections are for the GPIO pins of the arduino. They can be altered, bu the code shoudl be modified accordingly. The connections are as follows: </p>
+<p align="justify">The only missing connections are for the GPIO pins of the arduino. They can be altered, but the code should be modified accordingly. The connections are as follows: </p>
   
 - For the encoders in every motor:
 
@@ -49,7 +49,7 @@ The electrial connections for all components of the main robot are as follow:
   |        DIR         |       22      |
   |        ENABLE      |       27      |
 
-- For the limit switch, there are two pins the normally open (NO) and normally closed (NC). The wire that connects to the arduino is in between the resistor and the limit switch pin:
+- For the limit switch there are two pins, the normally open (NO) and normally closed (NC). The wire that connects to the arduino is in between the resistor and the limit switch pin:
  
   |   Limit switch     |  Arduino Pin  | 
   | ------------------ | ------------- |
