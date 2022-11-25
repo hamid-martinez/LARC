@@ -30,3 +30,7 @@
 
 ## Steel container painted and with QR code
 <img src="pictures/container.jpeg" alt="drawing" width="300" height="300"/>
+
+## Placement conveyors
+<img src="pictures/placement_conveyors.jpeg" alt="drawing" width="600" height="300"/>
+
