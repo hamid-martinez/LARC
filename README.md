@@ -23,4 +23,4 @@
 # Robot and conveyors overview
 
 ## Main robot
-<img src="pictures/main_robot_side1.jpeg" alt="drawing" width="500" height="500"/><img src="pictures/main_robot_side2.jpeg" alt="drawing" width="500" height="500"/>
+<img src="pictures/main_robot_side1.jpeg" alt="drawing" width="300" height="300"/><img src="pictures/main_robot_side2.jpeg" alt="drawing" width="300" height="300"/>
