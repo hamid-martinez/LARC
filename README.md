@@ -12,6 +12,9 @@
 
 <p align="justify"> To start, the main conveyor will move a container until the sensor detects it. Once it has, it sends a signal to the spread sheet to tell the main robot to go pick up the container. The robot then reads the signal and moves towards the conveyor, it picks up the conveyor and places it in front of the camera. It then sends a signal that it is ready to scan. Which the main conveyor reads from the google sheet and it scans the QR code of the container. Once the operation is complete, it will store the information of the QR code in the spread sheet, keeping an inventory. The main robot can then read from the information on the QR code, where it should place the container, either band 1 or 2. Once it knows it places the container in the corresponding band and then returns to wait for another container.</p>
 
+The link to the google spread sheet is the next link (requires permission):
+https://docs.google.com/spreadsheets/d/132iB4omVbyltYzKWI_OyOcBsnX106o9ql_H0pjo2T8Y/edit#gid=0
+
 # Repository structure
 
 <p align="justify"> The repo is devided into three main categories, each one has a folder. The first is the mechanical, where all the CAD files are included for the main robot and the conveyors.</p>
