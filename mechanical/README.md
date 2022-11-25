@@ -1,4 +1,6 @@
 # Mechanical
+Some mechanical important materials can be found in the excel file. Check the CAD files for further measures and references.
+
 All the CAD files are available in the zip folder, it also includes the cad files for the conveyors.
 
 The main robot design is as follows:
