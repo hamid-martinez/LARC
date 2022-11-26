@@ -21,8 +21,6 @@ while True:
     done_analyzing = sheet.get_cell_value(done_analyzing_sheet[0], done_analyzing_sheet[1])
     sleep(1)
 
-    sensor_state = "1"
-
     if sensor_state == "1":
 
         # Zero the platform 
@@ -68,32 +66,10 @@ while True:
 
     elif (done_analyzing == "1"):
 
-        #### Move forward to turn ####
-        print("Moving forward to turn\n")
-        arduino.send_command("F,360")
-        sleep(2)
-        arduino.read_command()
-        sleep(2)
-
-        #### Turn towards conveyors 1 and 2 ####
-        print("Rotating to face conveyors\n")
-        arduino.send_command("TR,832") # to turn 180 deg
-        sleep(2)
-        arduino.read_command()
-        sleep(2)
-
         # Moving platform to appropiate distance
         print("Moving platform to conveyor distance\n")
         arduino.send_command("PU,18")
         arduino.read_command()
-        sleep(1)
-
-        #### Move left towards conveyor ####
-        print("Moving left towards conveyors\n")
-        arduino.send_command("M,L#1500")
-        sleep(2)
-        arduino.read_command()
-        sleep(2)
         
         # Read which band it should move to
         row_to_read = len(sheet.get_all_data()) + 1
@@ -107,11 +83,26 @@ while True:
             ### MOVE TO CONVEYOR 1 ###
             print("Putting in conveyor 1\n")
 
+            #### Move forward for conveyor ####
+            print("Moving forward to conveyor 1\n")
+            arduino.send_command("F,540")
+            arduino.read_command()
+
+            # Lower platform to appropiate distance
+            print("Lowering platform to conveyor\n")
+            arduino.send_command("PD,6")
+            arduino.read_command()
+
             # Grab with electromagnets
             print("Deactivating electromagnets\n")
             arduino.send_command("EM,0")
             arduino.read_command()
             sleep(1)
+
+            #### Return to beginning from 1 ####
+            print("Moving back to origin from conveyor 1\n")
+            arduino.send_command("B,2291")
+            arduino.read_command()
 
         elif conveyor == "2":
 
