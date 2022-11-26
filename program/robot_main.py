@@ -21,51 +21,44 @@ while True:
     done_analyzing = sheet.get_cell_value(done_analyzing_sheet[0], done_analyzing_sheet[1])
     sleep(1)
 
+    sensor_state = "1"
+
     if sensor_state == "1":
 
         # Zero the platform 
         print("Moving platform to zero\n")
         arduino.send_command("PZ,0")
         arduino.read_command()
-        sleep(2)
 
         #### Move straight towards conveyor ####
         print("Moving straight towards conveyor\n")
-        arduino.send_command("F,1215")
-        sleep(2)
+        arduino.send_command("F,1116")
         arduino.read_command()
-        sleep(2)
 
         # Lower platform to appropiate distance
         print("Lowering platform to conveyor\n")
         arduino.send_command("PD,23")
         arduino.read_command()
-        sleep(1)
 
         # Grab with electromagnets
         print("Activating electromagnets\n")
         arduino.send_command("EM,1")
         arduino.read_command()
-        sleep(1)
 
         # Lift up for analysis
         print("Lifting container\n")
         arduino.send_command("PU,10")
         arduino.read_command()
-        sleep(1)
 
         #### Move forward for camera ####
         print("Moving forward to camera\n")
-        arduino.send_command("F,1215")
-        sleep(2)
+        arduino.send_command("F,635")
         arduino.read_command()
-        sleep(2)
 
         # Lower platform to appropiate distance
         print("Lowering platform to camera view\n")
         arduino.send_command("PD,18")
         arduino.read_command()
-        sleep(1)
         
         # Update sheet value to begin camera analysis for qr code
         sheet.update_cell_value(sensor_state_sheet[0], sensor_state_sheet[1], "0")

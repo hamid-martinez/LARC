@@ -140,6 +140,7 @@ void loop()
     split_1 = "";
     split_2 = "";
     readString = "";
+    ready_notification();
   }
 
   else if (split_1 == "F")
@@ -176,11 +177,13 @@ void loop()
         PID_M4(user_input, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3]);
         delayMicroseconds(500);
       }
-
-      split_1 = "";
-      split_2 = "";
-      readString = "";
     }
+
+    split_1 = "";
+    split_2 = "";
+    readString = "";
+
+    ready_notification();
   }
 
   else if (split_1 == "B")
@@ -217,11 +220,11 @@ void loop()
         PID_M4(user_input, KP[3], KI[3], KD[3], ENABLE[3], IN1[3], IN2[3]);
         delayMicroseconds(500);
       }
-
-      split_1 = "";
-      split_2 = "";
-      readString = "";
     }
+    split_1 = "";
+    split_2 = "";
+    readString = "";
+    ready_notification();
   }
   
   else if (split_1 == "R") // 1 and 2 fail
@@ -393,6 +396,7 @@ void loop()
     split_1 = "";
     split_2 = "";
     readString = "";
+    ready_notification();
   }
 
   else if (split_1 == "PD")
@@ -412,6 +416,7 @@ void loop()
     split_1 = "";
     split_2 = "";
     readString = "";
+    ready_notification();
   }
 
   else if (split_1 == "EM")
@@ -431,6 +436,7 @@ void loop()
     split_1 = "";
     split_2 = "";
     readString = "";
+    ready_notification();
   }
 
   else if (split_1 == "T1")
@@ -639,7 +645,7 @@ void loop()
 
   else if (split_1 == "" && split_2 == "" && readString == "")
   {
-    ready_notification();
+    Serial.println("Waiting");
   }
   
 }
@@ -740,8 +746,8 @@ void PID_M1(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // store previous error
     eprev_M1 = e;
 
-    Serial.print("M1: ");
-    Serial.println(eprev_M1);
+    /* Serial.print("M1: ");
+    Serial.println(eprev_M1); */
 
     if (abs(e) <= permissible_error)
     {  
@@ -826,8 +832,8 @@ void PID_M2(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // store previous error
     eprev_M2 = e;
 
-    Serial.print("M2: ");
-    Serial.println(eprev_M2);
+    /* Serial.print("M2: ");
+    Serial.println(eprev_M2); */
 
     if (abs(e) <= permissible_error)
     {  
@@ -910,8 +916,8 @@ void PID_M3(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // store previous error
     eprev_M3 = e;
 
-    Serial.print("M3: ");
-    Serial.println(eprev_M3);
+    /* Serial.print("M3: ");
+    Serial.println(eprev_M3); */
 
     if (abs(e) <= permissible_error)
     {  
@@ -994,8 +1000,8 @@ void PID_M4(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // store previous error
     eprev_M4 = e;
 
-    Serial.print("M4: ");
-    Serial.println(eprev_M4);
+    /* Serial.print("M4: ");
+    Serial.println(eprev_M4); */
 
     if ( abs(e) <= permissible_error)
     {  

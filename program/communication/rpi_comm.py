@@ -51,4 +51,7 @@ class Rpi_Comm():
         while True:
             if self.arduino.in_waiting > 0:
                 line = self.arduino.readline().decode("utf-8").rstrip()
-                return line
+                if line != "Ready":
+                    continue
+                elif line == "Ready":
+                    return line
