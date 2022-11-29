@@ -43,6 +43,8 @@ while True:
 
     while incoming == "1":
 
+        print("Incoming container")
+
         sensor_state = GPIO.input(sensor)
 
         if sensor_state == 1:
@@ -74,6 +76,7 @@ while True:
             sleep(0.5)
             sheet.insert_single_row(data,row_to_insert)
             sleep(0.5)
+            print("Successfull")
 
         else:
             print("ERROR: Failed to analyze\n")

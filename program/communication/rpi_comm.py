@@ -43,12 +43,15 @@ class Rpi_Comm():
             return "Error: Incorrect numeric value"
 
         # If all checks are passed, then write to the serial port the given command
-        self.arduino.write(self.cmd_to_send.encode("utf-8"))
+        self.arduino.write(self.cmd_to_send.encode("latin-1"))
         time.sleep(0.5) #wait for port to answer
 
     def read_command(self):
 
         while True:
             if self.arduino.in_waiting > 0:
-                line = self.arduino.readline().decode("utf-8").rstrip()
-                return line
+                line = self.arduino.readline().decode("latin-1").rstrip()
+                if line != "Ready":
+                    continue
+                elif line == "Ready":
+                    return line

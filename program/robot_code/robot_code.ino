@@ -10,15 +10,20 @@ const int IN2[] = {11, 46, 5, 49};
 const int ENCA[] = {2, 3, 18, 19}; // Pins for interrupt signal
 const int ENCB[] = {53, 52, 51, 50};
 
-const int pwm_resolution = 255; // The max duty cycle value for the pwm signal
+const int pwm_resolution_M1 = 255; // The max duty cycle value for the pwm signal
+const int pwm_resolution_M2 = 255;
+const int pwm_resolution_M3 = 255;
+const int pwm_resolution_M4 = 255;
 
 // PID values for each motor as an array
 // control_array[] = {kp_m1, kp_m2, kp_m3...};
 // start values: 3.5, 0.02, 0.25
 // safe values: 1, 0, 0
 const int KP[] = {10, 10, 10, 10}; // decreases rise time
-const int KI[] = {0, 0, 0, 0}; // eliminates steady-state error
+const int KI[] = {0.01, 0.01, 0.01, 0.01}; // eliminates steady-state error
 const int KD[] = {1, 1, 1, 1}; // decreases overshoot
+
+const int permissible_error = 5;
 
 // PID variables used in function
 long prevT_M1 = 0;
@@ -135,6 +140,7 @@ void loop()
     split_1 = "";
     split_2 = "";
     readString = "";
+    ready_notification();
   }
 
   else if (split_1 == "F")
@@ -172,6 +178,12 @@ void loop()
         delayMicroseconds(500);
       }
     }
+
+    split_1 = "";
+    split_2 = "";
+    readString = "";
+
+    ready_notification();
   }
 
   else if (split_1 == "B")
@@ -209,6 +221,10 @@ void loop()
         delayMicroseconds(500);
       }
     }
+    split_1 = "";
+    split_2 = "";
+    readString = "";
+    ready_notification();
   }
   
   else if (split_1 == "R") // 1 and 2 fail
@@ -380,6 +396,7 @@ void loop()
     split_1 = "";
     split_2 = "";
     readString = "";
+    ready_notification();
   }
 
   else if (split_1 == "PD")
@@ -399,6 +416,7 @@ void loop()
     split_1 = "";
     split_2 = "";
     readString = "";
+    ready_notification();
   }
 
   else if (split_1 == "EM")
@@ -418,6 +436,7 @@ void loop()
     split_1 = "";
     split_2 = "";
     readString = "";
+    ready_notification();
   }
 
   else if (split_1 == "T1")
@@ -626,7 +645,7 @@ void loop()
 
   else if (split_1 == "" && split_2 == "" && readString == "")
   {
-    ready_notification();
+    Serial.println("Waiting");
   }
   
 }
@@ -709,9 +728,9 @@ void PID_M1(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // motor power
     float pwr = fabs(u);
 
-    if ( pwr > pwm_resolution )
+    if ( pwr > pwm_resolution_M1 )
     {
-      pwr = pwm_resolution;
+      pwr = pwm_resolution_M1;
     }
 
     // motor direction
@@ -730,7 +749,7 @@ void PID_M1(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     /* Serial.print("M1: ");
     Serial.println(eprev_M1); */
 
-    if (abs(e) <= 3)
+    if (abs(e) <= permissible_error)
     {  
       analogWrite(ENABLE[0], 0);
       posi[0] = 0;
@@ -795,9 +814,9 @@ void PID_M2(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // motor power
     float pwr = fabs(u);
 
-    if ( pwr > pwm_resolution )
+    if ( pwr > pwm_resolution_M2 )
     {
-      pwr = pwm_resolution;
+      pwr = pwm_resolution_M2;
     }
 
     // motor direction
@@ -816,7 +835,7 @@ void PID_M2(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     /* Serial.print("M2: ");
     Serial.println(eprev_M2); */
 
-    if (abs(e) <= 3)
+    if (abs(e) <= permissible_error)
     {  
       analogWrite(ENABLE[1], 0);
       posi[1] = 0;
@@ -879,9 +898,9 @@ void PID_M3(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // motor power
     float pwr = fabs(u);
 
-    if ( pwr > pwm_resolution )
+    if ( pwr > pwm_resolution_M3 )
     {
-      pwr = pwm_resolution;
+      pwr = pwm_resolution_M3;
     }
 
     // motor direction
@@ -900,7 +919,7 @@ void PID_M3(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     /* Serial.print("M3: ");
     Serial.println(eprev_M3); */
 
-    if (abs(e) <= 3)
+    if (abs(e) <= permissible_error)
     {  
       analogWrite(ENABLE[2], 0);
       posi[2] = 0;
@@ -963,9 +982,9 @@ void PID_M4(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     // motor power
     float pwr = fabs(u);
 
-    if ( pwr > pwm_resolution )
+    if ( pwr > pwm_resolution_M4 )
     {
-      pwr = pwm_resolution;
+      pwr = pwm_resolution_M4;
     }
 
     // motor direction
@@ -984,7 +1003,7 @@ void PID_M4(int user_input, int kp_in, int ki_in , int kd_in, int enable_in, int
     /* Serial.print("M4: ");
     Serial.println(eprev_M4); */
 
-    if ( abs(e) <= 3)
+    if ( abs(e) <= permissible_error)
     {  
       analogWrite(ENABLE[3], 0);
       posi[3] = 0;
