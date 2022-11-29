@@ -1,12 +1,12 @@
 # Robot project
 
-<p align="justify"> The robot proyect named LARC consists of a container transporting system. The system is composed by a main robot that does all the transporting of the containers, a main conveyor belt that is in charge of identifying the containers' information and two transporting conveyors where the robot will place the already identified containers.</p>
+<p align="justify"> The robot project named LARC consists of a container transporting system. The system is composed by a main robot that does all the transporting of the containers, a main conveyor belt that is in charge of identifying the containers' information and two transporting conveyors where the robot will place the already identified containers.</p>
 
-<p align="justify"> The main robot is driven with onmidirectional wheels controlled by dc motors with encoders, it has a platform that it can move up or down with the help of a stepper motor and it contains electromagnets to attach the containers. The main circuit contains the necessary components and connections for the drivers and signals.</p>
+<p align="justify"> The main robot is driven with onmidirectional wheels controlled by dc motors with encoders, it has a platform that can be moved up and down with the help of a stepper motor and it contains electromagnets to attach the containers. The main circuit contains the necessary components and connections for the drivers and signals.</p>
 
 <p align="justify"> To control the robot, the main program is loaded into an Arduino Mega, which is connected to a Raspberry Pi that has the necessary commads to send to the arduino through serial communication.</p>
 
-<p align="justify"> The main conveyr belt is driven by a dc motor and even if it has encoders, they are not used. The main conveyor has another Raspberry Pi that has a Pi Camera attached to read the QR codes of the containers. It also has a sensor to indicate when a conveyr is waiting to be transported.</p>
+<p align="justify"> The main conveyor belt is driven by a dc motor and even if it has encoders, they are not used. The main conveyor has another Raspberry Pi that has a Pi Camera attached to read the QR codes of the containers. It also has a sensor to indicate when a conveyor is waiting to be transported.</p>
 
 <p align="justify"> The Raspberry Pi's communicate through a google cloud service from a spread sheet. Using the gspread library from python, the computers are able to manipulate the data from the sheet and read data from it.</p>
 
