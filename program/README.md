@@ -19,6 +19,6 @@ Run the programs by entering into VS Code and connecting to both Raspberries thr
 
 That way, both programs will be able to run simultaneously.
 
-All other folders in the program are either tests for specific funtions that were integrated or not into the main files.
+All other folders in the program are either tests for specific functions that were integrated or not into the main files.
 
-The *requirements.txt* file contains some of the programs nad libraries needed to run the files, as well as their version.
+The *requirements.txt* file contains some of the programs and libraries needed to run the files, as well as their version.
