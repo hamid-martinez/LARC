@@ -40,3 +40,6 @@ https://docs.google.com/spreadsheets/d/132iB4omVbyltYzKWI_OyOcBsnX106o9ql_H0pjo2
 ## Complete placement
 <img src="pictures/complete_placement1.jpeg" alt="drawing" width="600" height="300"/> <img src="pictures/complete_placement2.jpeg" alt="drawing" width="300" height="300"/>
 
+## Video demonstration link
+https://www.youtube.com/watch?v=me1BS7kdDBs
+
