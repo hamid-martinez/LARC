@@ -21,7 +21,7 @@ https://docs.google.com/spreadsheets/d/132iB4omVbyltYzKWI_OyOcBsnX106o9ql_H0pjo2
 
 <p align="justify"> The second part is the electrical, where the circuit for the main robot and the conveyor, as well as the components necessary to build it can be found. </p>
 
-<p align="justify"> The last part consists of the code. The code is structured in classes, each class handles a specifc task for the robot. Inside it also has the main arduino code for the robot and the main python files for the conveyor and the robot.</p>
+<p align="justify"> The last part consists of the code. The code is structured in classes, each class handles a specific task for the robot. Inside it also has the main arduino code for the robot and the main python files for the conveyor and the robot.</p>
 
 # Robot and conveyors overview
 
